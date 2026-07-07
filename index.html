@@ -51,7 +51,7 @@
   .userchip{display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--line); padding:6px 12px 6px 6px; border-radius:20px; font-size:12px;}
   .userchip .av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#3a4a5c,#222b36);}
 
-  .info-badge{display:flex; align-items:flex-start; gap:8px; background:var(--warn-bg); border:1px solid var(--warn-line); color:#f2c569; font-size:11.5px; font-weight:500; line-height:1.5; padding:10px 12px; border-radius:10px; margin-bottom:16px;}
+  .info-badge{display:flex; align-items:flex-start; gap:8px; background:var(--warn-bg); border:1px solid var(--warn-line); color:#f2c569; font-size:11.5px; font-weight:500; line-height:1.5; padding:12px 16px; border-radius:12px; margin-bottom:16px;}
 
   .hero h1{font-family:'Sora',sans-serif; font-size:26px; font-weight:800; letter-spacing:-.01em;}
   .hero p{color:var(--muted); font-size:13.5px; margin-top:4px;}
@@ -129,14 +129,19 @@
   .page{display:none;}
   .page.active{display:block;}
 
-  .nav{position:fixed; left:0; right:0; bottom:0; background:rgba(11,15,20,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:10px 6px 14px;}
+  .nav{position:fixed; left:0; right:0; bottom:0; background:rgba(11,15,20,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 0;}
   .nav button{background:none; border:none; color:var(--muted); font-size:11px; font-weight:600; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;}
   .nav button .ic{font-size:19px;}
   .nav button.active{color:var(--text);}
   .nav button.active .ic{filter:drop-shadow(0 0 6px rgba(109,140,255,0.6));}
 
-  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); background:#1a2230; border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .25s ease; z-index:999; box-shadow:0 10px 30px rgba(0,0,0,0.4); max-width:88%; text-align:center;}
+  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); background:#1a2230; border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; opacity:0; transition:opacity .3s; font-size:12.5px; z-index:999;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .task-block-container{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px; text-align:center;}
+  .task-block-container h3{font-family:'Sora',sans-serif; font-size:14px; font-weight:700; margin-bottom:10px;}
+  .task-block-id{background:var(--panel-2); border:1px solid var(--line); padding:12px; border-radius:10px; font-family:monospace; font-size:12px; color:var(--muted); margin-bottom:10px; word-break:break-all;}
+  .task-block-note{font-size:11px; color:var(--muted); line-height:1.5;}
 </style>
 </head>
 <body>
@@ -212,6 +217,13 @@
     <div class="hero">
       <h1>Tasks</h1>
       <p>Optional actions. Complete any of these when you feel like it.</p>
+    </div>
+
+    <!-- Adsgram Task Block Display -->
+    <div id="taskBlockSection" class="task-block-container" style="display:none;">
+      <h3>Complete Task</h3>
+      <div class="task-block-id" id="taskBlockDisplay"></div>
+      <div class="task-block-note">Task block ID: <strong id="taskBlockIdText"></strong> — Watch ad SDK task</div>
     </div>
 
     <div class="section">
@@ -383,7 +395,7 @@ try{ tg?.expand?.(); }catch(e){}
 // Each block ID maps to ONE placement so Adsgram's reporting stays accurate
 // per-placement (reward ad vs. the in-task bonus ad are tracked separately).
 const ADSGRAM_REWARD_BLOCK_ID = '37622'; // used by the Home "Watch Ad" card
-const ADSGRAM_TASK_BLOCK_ID   = '37622';   // used by the Tasks "bonus ad" row only
+const ADSGRAM_TASK_BLOCK_ID   = '37622';   // used by the Tasks "bonus ad" row only — DIFFERENT from reward ad SDK
 
 // Withdrawal requests are forwarded to your Telegram admin chat (23674574),
 // but NOT by calling the Telegram Bot API directly from this page. A bot
@@ -608,6 +620,22 @@ function updateWithdrawButton(){
     : 'Request Withdrawal';
 }
 
+/* Display Task Block ID when navigating to tasks page */
+function showTaskBlockSection(){
+  const section = document.getElementById('taskBlockSection');
+  const blockDisplay = document.getElementById('taskBlockDisplay');
+  const blockIdText = document.getElementById('taskBlockIdText');
+  
+  section.style.display = 'block';
+  blockDisplay.innerText = `Block ID: ${ADSGRAM_TASK_BLOCK_ID}`;
+  blockIdText.innerText = ADSGRAM_TASK_BLOCK_ID;
+}
+
+function hideTaskBlockSection(){
+  const section = document.getElementById('taskBlockSection');
+  section.style.display = 'none';
+}
+
 /* ---------------- TOAST ---------------- */
 let toastTimer;
 function toast(msg){
@@ -677,7 +705,10 @@ function watchBonusAdTask(){
     .catch(() => toast('Ad was closed early — no reward given'));
 }
 
-document.getElementById('goTasksBtn').addEventListener('click', () => showPage('tasks'));
+document.getElementById('goTasksBtn').addEventListener('click', () => {
+  showPage('tasks');
+  showTaskBlockSection();
+});
 
 document.getElementById('copyReferBtn').addEventListener('click', () => {
   const input = document.getElementById('referLinkInput');
@@ -748,6 +779,11 @@ function showPage(name){
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(`${name}-page`).classList.add('active');
   document.getElementById(`nav-${name}`).classList.add('active');
+  
+  // Hide task block section when navigating away from tasks
+  if (name !== 'tasks'){
+    hideTaskBlockSection();
+  }
 }
 
 /* ---------------- INIT ---------------- */
