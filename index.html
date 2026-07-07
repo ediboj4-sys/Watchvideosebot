@@ -489,20 +489,44 @@ function todayStr(){ return new Date().toDateString(); }
 if (adDailyDate !== todayStr()) { adDailyCount = 0; adDailyDate = todayStr(); bonusTasksCompleted = 0; bonusClaimedToday = ''; }
 if (taskDailyDate !== todayStr()) { taskDailyCount = 0; taskDailyDate = todayStr(); }
 
-/* Adsgram init - WATCH AD SDK only (TASK BLOCKS are embedded as HTML elements) */
+/* Adsgram init - WATCH AD (Reward) SDK, per official AdsGram integration docs:
+   https://docs.adsgram.ai/publisher/api-reference
+   Official pattern: window.Adsgram?.init({ blockId, debug }) */
 let homeWatchAd;
 
-window.addEventListener('load', () => {
-  if (typeof Adsgram !== 'undefined' && ADSGRAM_HOME_WATCH_AD) {
-    try {
-      // Watch Ad instance (HOME PAGE)
-      homeWatchAd = Adsgram.init({ blockId: ADSGRAM_HOME_WATCH_AD });
-    } catch (e) {
-      console.error('Adsgram init failed:', e);
-      homeWatchAd = null;
-    }
+// Flip to true only while troubleshooting — it serves test ads, logs
+// "ADSGRAM DEBUG LOG" details to the console, and does NOT count real
+// impressions/stats or send reward requests. Turn back off for production.
+const ADSGRAM_DEBUG = false;
+
+function initHomeWatchAd(){
+  if (homeWatchAd) return true; // already initialized
+
+  if (!ADSGRAM_HOME_WATCH_AD) {
+    console.error('Adsgram: ADSGRAM_HOME_WATCH_AD blockId is empty — set it in CONFIG.');
+    return false;
+  }
+  if (!window.Adsgram) {
+    // sad.min.js hasn't finished loading yet — caller should retry shortly.
+    return false;
   }
 
+  try {
+    homeWatchAd = window.Adsgram.init({
+      blockId: ADSGRAM_HOME_WATCH_AD,
+      debug: ADSGRAM_DEBUG,
+      debugBannerType: 'RewardedVideo'
+    });
+    return true;
+  } catch (e) {
+    console.error('Adsgram init failed:', e);
+    homeWatchAd = null;
+    return false;
+  }
+}
+
+window.addEventListener('load', () => {
+  initHomeWatchAd();
   // SHOW WELCOME AD ON APP LAUNCH
   showWelcomeAd();
 });
@@ -513,6 +537,11 @@ let welcomeAdWaitStarted = 0;
 
 function showWelcomeAd() {
   if (welcomeAdShown || hasJoinedChannel) return;
+
+  if (!homeWatchAd) {
+    // Keep retrying init in case sad.min.js was still loading.
+    initHomeWatchAd();
+  }
 
   if (!homeWatchAd) {
     // Track how long we've been waiting for the SDK to load.
@@ -878,6 +907,7 @@ function grantAdReward(){
 
 // HOME PAGE - Watch Ad (WATCH AD SDK)
 document.getElementById('watchAdBtn').addEventListener('click', () => {
+  if (!homeWatchAd) initHomeWatchAd(); // retry in case SDK finished loading late
   if (!homeWatchAd){
     toast('Ad not ready — try again shortly');
     return;
@@ -896,6 +926,7 @@ document.getElementById('watchAdBtn').addEventListener('click', () => {
 // reward/cooldown/cap as the Home page ad (this is one ad slot, not a
 // separate task-block SDK).
 function watchBonusAd(){
+  if (!homeWatchAd) initHomeWatchAd(); // retry in case SDK finished loading late
   if (!homeWatchAd){
     toast('Ad not ready — try again shortly');
     return;
