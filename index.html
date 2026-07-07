@@ -134,8 +134,25 @@
   .bonus-btn:active:not(:disabled){transform:scale(.95);}
   .bonus-countdown{font-size:11px; color:var(--muted); text-align:center; margin-top:8px;}
 
-  /* ADSGRAM TASK BLOCK STYLING */
-  adsgram-task{display:block; width:100%; margin:10px 0;}
+  /* ADSGRAM TASK BLOCK STYLING (real AdsGram <adsgram-task> web component) */
+  adsgram-task{
+    display:block; width:100%; margin:10px 0;
+    --adsgram-task-font-size: 14px;
+    --adsgram-task-icon-size: 44px;
+    --adsgram-task-icon-title-gap: 12px;
+    --adsgram-task-button-width: 64px;
+    --adsgram-task-icon-border-radius: 10px;
+    padding:10px 14px 10px 10px;
+    border-radius:14px;
+    background-color:var(--panel-2);
+    border:1px solid var(--line);
+    font-family:'Inter', Arial, sans-serif;
+    color:var(--text);
+  }
+  adsgram-task [slot="reward"]{ margin:4px 0 0; font-size:12px; color:var(--muted); }
+  adsgram-task [slot="button"]{ background:var(--refer); color:#fff; border-radius:8px; padding:7px 12px; font-weight:700; font-size:12px; }
+  adsgram-task [slot="claim"]{ background:var(--ad); color:#241703; border-radius:8px; padding:7px 12px; font-weight:700; font-size:12px; }
+  adsgram-task [slot="done"]{ background:var(--task); color:#04211c; border-radius:8px; padding:7px 12px; font-weight:700; font-size:12px; }
 
   .social-tasks{display:grid; gap:10px; margin-top:12px;}
   .social-task{display:flex; align-items:center; justify-content:space-between; background:var(--panel-2); border:1px solid var(--line); padding:10px 12px; border-radius:10px;}
@@ -233,7 +250,7 @@
       <div class="rules">
         <div class="col">
           <h3>REWARDED AD</h3>
-          <div class="row"><span>Cooldown</span><span>60 min</span></div>
+          <div class="row"><span>Cooldown</span><span>30 sec</span></div>
           <div class="row"><span>Max / day</span><span>300 pts</span></div>
         </div>
         <div class="col">
@@ -256,21 +273,10 @@
 
     <div class="section">
       <h2>🎯 Available today</h2>
+      <div id="mainTasksList"></div>
       <div class="task-item">
-        <div><div class="t">Visit Twitter / X</div><div class="s">Follow the project account</div></div>
-        <button class="task-chip" id="task-1" onclick="completeTask(1,30)">+30 pts</button>
-      </div>
-      <div class="task-item">
-        <div><div class="t">Share on Telegram</div><div class="s">Share to 5 chats</div></div>
-        <button class="task-chip" id="task-2" onclick="completeTask(2,50)">+50 pts</button>
-      </div>
-      <div class="task-item">
-        <div><div class="t">Join partner channel</div><div class="s">Optional community task</div></div>
-        <button class="task-chip" id="task-3" onclick="completeTask(3,40)">+40 pts</button>
-      </div>
-      <div class="task-item">
-        <div><div class="t">Watch a bonus ad</div><div class="s">Optional — same rules apply</div></div>
-        <button class="task-chip" id="task-ad" onclick="watchBonusAdTask()">+30 pts</button>
+        <div><div class="t">Watch a bonus ad</div><div class="s">Optional — same rules as the Home ad</div></div>
+        <button class="task-chip" id="task-ad" onclick="watchBonusAd()">+10 pts</button>
       </div>
     </div>
 
@@ -280,7 +286,12 @@
       <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">Complete tasks to earn extra points · 30 sec cooldown · Max 300 pts/day</p>
       <button class="bonus-btn" id="manualTaskBtn" onclick="showManualTask()" style="width:100%; background:linear-gradient(135deg, var(--ad), var(--ad-deep)); color:#241703; border:none; padding:12px;">▶ Complete Task (+30 pts)</button>
       <div id="manualTaskContainer" style="margin-top:16px; display:none;">
-        <adsgram-task data-task-id="task-34564"></adsgram-task>
+        <adsgram-task id="manualAdsgramTask" data-block-id="task-34564" data-debug="false" class="task">
+          <p slot="reward">🪙 +30 pts</p>
+          <div slot="button">go</div>
+          <div slot="claim">claim</div>
+          <div slot="done">done</div>
+        </adsgram-task>
       </div>
     </div>
 
@@ -296,7 +307,12 @@
       </div>
       <div class="bonus-countdown" id="bonusCountdown"></div>
       <div id="dailyBonusTaskContainer" style="margin-top:12px; display:none;">
-        <adsgram-task data-task-id="int-37625"></adsgram-task>
+        <adsgram-task id="bonusAdsgramTask" data-block-id="task-37623" data-debug="false" class="task">
+          <p slot="reward">🎁 +100 pts</p>
+          <div slot="button">go</div>
+          <div slot="claim">claim</div>
+          <div slot="done">done</div>
+        </adsgram-task>
       </div>
     </div>
 
@@ -407,16 +423,27 @@ try{ tg?.expand?.(); }catch(e){}
    CONFIG - ADSGRAM BLOCK IDS
    ========================================================================= */
 // WATCH AD SDK - for home page rewarded video ads (immediate reward)
-const ADSGRAM_HOME_WATCH_AD = '37622';
+const ADSGRAM_HOME_WATCH_AD = '34575';
 
 // TASK BLOCK SDK - <adsgram-task> (for task completion - embedded in HTML)
+// NOTE: AdsGram task block IDs must follow the 'task-xxx' format (numbers only).
+// These must match the data-block-id attributes on the <adsgram-task> elements in the HTML above.
 const ADSGRAM_MANUAL_TASK_ID = 'task-34564';    // Manual tasks (30 sec cooldown)
-const ADSGRAM_DAILY_BONUS_TASK_ID = 'int-37625'; // Daily bonus task (30 sec cooldown)
+const ADSGRAM_DAILY_BONUS_TASK_ID = 'task-37623'; // Daily bonus task (30 sec cooldown)
 
-const CHANNEL_LINK = 'https://t.me/taskhubofficial';
+const CHANNEL_LINK = 'https://www.channel.com'; // TODO: replace with your real Telegram channel link
 
 const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
 const ADMIN_CHAT_ID = '23674574';
+
+// Main "Available today" tasks — each opens a real link, then goes to
+// "Pending" until you (the admin) verify and approve it manually via the
+// Telegram notification. Edit name/link/reward here any time.
+const MAIN_TASKS = [
+  { id: 1, name: '🐦 Visit Twitter / X', desc: 'Follow the project account', link: 'https://twitter.com/youraccount', reward: 30 },
+  { id: 2, name: '📤 Share on Telegram', desc: 'Share to 5 chats', link: 'https://t.me/share/url?url=https%3A%2F%2Ft.me%2FTaskHubBot', reward: 50 },
+  { id: 3, name: '🔗 Join partner channel', desc: 'Optional community task', link: 'https://t.me/partnerchannel', reward: 40 }
+];
 
 // Social tasks with example links (admin approves pts manually)
 const SOCIAL_TASKS = [
@@ -445,7 +472,7 @@ let socialTasksPending = JSON.parse(localStorage.getItem('th_socialTasksPending'
 let hasJoinedChannel = localStorage.getItem('th_hasJoinedChannel') === 'true';
 let welcomeAdShown = localStorage.getItem('th_welcomeAdShown') === 'true';
 
-const AD_COOLDOWN_MS         = 60 * 60 * 1000;   // 60 min for home watch ad
+const AD_COOLDOWN_MS         = 30 * 1000;        // 30 sec for home watch ad
 const MANUAL_TASK_COOLDOWN_MS = 30 * 1000;       // 30 sec for manual tasks
 const BONUS_TASK_COOLDOWN_MS  = 30 * 1000;       // 30 sec for bonus tasks
 const AD_MAX_PER_DAY          = 300;
@@ -558,6 +585,42 @@ function renderActivity(){
   `).join('');
 }
 
+function renderMainTasks(){
+  const list = document.getElementById('mainTasksList');
+  list.innerHTML = MAIN_TASKS.map(task => {
+    const key = `task-${task.id}`;
+    const isDone = completedTasks.includes(key);
+    const isPending = socialTasksPending.includes(key);
+    return `
+      <div class="task-item">
+        <div><div class="t">${task.name}</div><div class="s">${task.desc}</div></div>
+        ${isDone
+          ? `<button class="task-chip done" disabled>✅ Done</button>`
+          : isPending
+            ? `<button class="task-chip" disabled style="background:#2a3542; color:var(--muted);">⏳ Pending</button>`
+            : `<button class="task-chip" onclick="requestMainTask(${task.id}, '${task.link}', ${task.reward})">+${task.reward} pts</button>`
+        }
+      </div>
+    `;
+  }).join('');
+}
+
+function requestMainTask(id, link, reward){
+  const key = `task-${id}`;
+  if (completedTasks.includes(key)) { toast('Already completed'); return; }
+  if (socialTasksPending.includes(key)) { toast('Already pending'); return; }
+
+  // Open the real task link
+  window.open(link, '_blank');
+
+  // Mark as pending admin verification (same flow as social tasks)
+  socialTasksPending.push(key);
+  notifyAdminSocialTask(key, link, reward);
+
+  toast('Request sent to admin for verification...');
+  render();
+}
+
 function renderSocialTasks(){
   const list = document.getElementById('socialTasksList');
   list.innerHTML = SOCIAL_TASKS.map(task => {
@@ -596,15 +659,16 @@ function render(){
   
   updateBonusButton();
   updateManualTaskButton();
+  renderMainTasks();
   renderSocialTasks();
   updateAdButton();
-  updateTaskButtons();
   updateWithdrawButton();
   persist();
 }
 
 function updateAdButton(){
   const btn = document.getElementById('watchAdBtn');
+  const taskAdBtn = document.getElementById('task-ad');
   const now = Date.now();
   const sinceLast = now - lastAdTime;
   const capped = adDailyCount >= AD_MAX_PER_DAY;
@@ -612,13 +676,16 @@ function updateAdButton(){
   if (capped){
     btn.disabled = true;
     btn.innerText = 'Daily cap reached';
+    if (taskAdBtn){ taskAdBtn.disabled = true; taskAdBtn.innerText = 'Cap reached'; }
   } else if (sinceLast < AD_COOLDOWN_MS){
     btn.disabled = true;
-    const mins = Math.ceil((AD_COOLDOWN_MS - sinceLast)/60000);
-    btn.innerText = `Next ad in ${mins} min`;
+    const secs = Math.ceil((AD_COOLDOWN_MS - sinceLast)/1000);
+    btn.innerText = `Next ad in ${secs}s`;
+    if (taskAdBtn){ taskAdBtn.disabled = true; taskAdBtn.innerText = `${secs}s`; }
   } else {
     btn.disabled = false;
     btn.innerText = '▶ Watch Ad';
+    if (taskAdBtn){ taskAdBtn.disabled = false; taskAdBtn.innerText = '+10 pts'; }
   }
 }
 
@@ -667,17 +734,6 @@ function updateBonusButton(){
   }
 }
 
-function updateTaskButtons(){
-  [1,2,3].forEach(id => {
-    const btn = document.getElementById(`task-${id}`);
-    if (completedTasks.includes(`task-${id}`)){
-      btn.classList.add('done');
-      btn.innerText = '✅ Done';
-      btn.disabled = true;
-    }
-  });
-}
-
 function updateWithdrawButton(){
   const btn = document.getElementById('withdrawBtn');
   btn.disabled = balance < MIN_WITHDRAWAL;
@@ -698,16 +754,14 @@ function showManualTask(){
     toast('Daily manual task cap reached');
     return;
   }
-  
-  // Show the <adsgram-task> block
+
+  // Reveal the real <adsgram-task> widget — the user must actually
+  // press its own "go" button and complete the ad inside it.
   const container = document.getElementById('manualTaskContainer');
   container.style.display = 'block';
   container.scrollIntoView({ behavior: 'smooth' });
-  
-  // Listen for task completion
-  setTimeout(() => {
-    completeManualTask();
-  }, 2000);
+  // Reward is only granted by the SDK's own "reward" event (wired up below),
+  // never by a timer.
 }
 
 function completeManualTask(){
@@ -735,15 +789,11 @@ function showDailyBonusTask(){
     return;
   }
   
-  // Show the <adsgram-task> block
+  // Reveal the real <adsgram-task> widget — reward only fires from the
+  // SDK's own "reward" event (wired up below), never from a timer.
   const container = document.getElementById('dailyBonusTaskContainer');
   container.style.display = 'block';
   container.scrollIntoView({ behavior: 'smooth' });
-  
-  // Listen for task completion
-  setTimeout(() => {
-    completeDailyBonusTask();
-  }, 2000);
 }
 
 function completeDailyBonusTask(){
@@ -756,6 +806,40 @@ function completeDailyBonusTask(){
   // Hide the task block
   document.getElementById('dailyBonusTaskContainer').style.display = 'none';
   render();
+}
+
+/* --------- ADSGRAM TASK SDK EVENT WIRING (real integration) ---------
+   The <adsgram-task> web component dispatches its own custom events once
+   the user actually finishes watching inside the widget. We only credit
+   points in response to those events — never on a timer/guess. */
+const manualAdsgramTaskEl = document.getElementById('manualAdsgramTask');
+const bonusAdsgramTaskEl  = document.getElementById('bonusAdsgramTask');
+
+if (manualAdsgramTaskEl) {
+  manualAdsgramTaskEl.addEventListener('reward', (event) => {
+    // event.detail contains the block id that was rewarded
+    completeManualTask();
+  });
+  manualAdsgramTaskEl.addEventListener('onError', () => {
+    toast('Task failed to load — try again shortly');
+  });
+  manualAdsgramTaskEl.addEventListener('onBannerNotFound', () => {
+    toast('No task available right now — check back later');
+    document.getElementById('manualTaskContainer').style.display = 'none';
+  });
+}
+
+if (bonusAdsgramTaskEl) {
+  bonusAdsgramTaskEl.addEventListener('reward', (event) => {
+    completeDailyBonusTask();
+  });
+  bonusAdsgramTaskEl.addEventListener('onError', () => {
+    toast('Task failed to load — try again shortly');
+  });
+  bonusAdsgramTaskEl.addEventListener('onBannerNotFound', () => {
+    toast('No task available right now — check back later');
+    document.getElementById('dailyBonusTaskContainer').style.display = 'none';
+  });
 }
 
 /* --------- EARNING ACTIONS --------- */
@@ -780,16 +864,24 @@ document.getElementById('watchAdBtn').addEventListener('click', () => {
     .catch(() => toast('Ad was closed early — no reward given'));
 });
 
-function completeTask(id, reward){
-  const key = `task-${id}`;
-  if (completedTasks.includes(key)) { toast('Already completed'); return; }
-  completedTasks.push(key);
-  taskDailyCount += reward;
-  balance += reward;
-  bonusTasksCompleted++;
-  addActivity(`Task completed (#${id})`, reward);
-  toast(`+${reward} pts — task complete!`);
-  render();
+// "Watch a bonus ad" task — reuses the SAME Watch Ad SDK instance and
+// reward/cooldown/cap as the Home page ad (this is one ad slot, not a
+// separate task-block SDK).
+function watchBonusAd(){
+  if (!homeWatchAd){
+    toast('Ad not ready — try again shortly');
+    return;
+  }
+  if (adDailyCount >= AD_MAX_PER_DAY) { toast('Daily ad cap reached'); return; }
+  const now = Date.now();
+  if (now - lastAdTime < AD_COOLDOWN_MS) {
+    const secs = Math.ceil((AD_COOLDOWN_MS - (now - lastAdTime)) / 1000);
+    toast(`Wait ${secs} seconds before the next ad`);
+    return;
+  }
+  homeWatchAd.show()
+    .then(() => grantAdReward())
+    .catch(() => toast('Ad was closed early — no reward given'));
 }
 
 // Social task - mark as pending, admin approves
@@ -918,7 +1010,7 @@ if (tg?.initDataUnsafe?.user?.id) {
 }
 render();
 renderActivity();
-setInterval(updateAdButton, 15000);
+setInterval(updateAdButton, 1000);
 setInterval(updateManualTaskButton, 1000);
 setInterval(updateBonusButton, 1000);
 </script>
