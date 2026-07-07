@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TaskHub — Watch & Earn</title>
+<title>Taskcoin bot — Watch & Earn</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
@@ -178,7 +178,17 @@
         <div class="mini-progress"><div id="taskProgressFill"></div></div>
         <button class="earn-btn" id="goTasksBtn">Go →</button>
       </div>
-    </div>
+    
+
+      <div class="task-item">
+        <div><div class="t">📝 Manual Task</div><div class="s">Watch an Adsgram task ad then complete manually to earn 20 pts.</div></div>
+        <button class="task-chip" id="manualTaskBtn">+20 pts</button>
+      </div>
+
+      <div class="task-item">
+        <div><div class="t">🎁 Daily Bonus</div><div class="s">Complete all 4 tasks first to claim 100 pts (once every 24 hours)</div></div>
+        <button class="task-chip" id="dailyBonusBtn" onclick="claimDailyBonus()">Locked</button>
+      </div>
 
     <div class="disclaimer">
       <b>Optional, always.</b> Watching ads and completing tasks is 100% optional. You are never required
@@ -190,7 +200,7 @@
       <div class="rules">
         <div class="col">
           <h3>REWARDED AD</h3>
-          <div class="row"><span>Cooldown</span><span>60 min</span></div>
+          <div class="row"><span>Cooldown</span><span>30 sec</span></div>
           <div class="row"><span>Max / day</span><span>300 pts</span></div>
         </div>
         <div class="col">
@@ -229,7 +239,17 @@
         <div><div class="t">Watch a bonus ad</div><div class="s">Optional — same rules apply</div></div>
         <button class="task-chip" id="task-ad" onclick="watchBonusAdTask()">+30 pts</button>
       </div>
-    </div>
+    
+
+      <div class="task-item">
+        <div><div class="t">📝 Manual Task</div><div class="s">Watch an Adsgram task ad then complete manually to earn 20 pts.</div></div>
+        <button class="task-chip" id="manualTaskBtn">+20 pts</button>
+      </div>
+
+      <div class="task-item">
+        <div><div class="t">🎁 Daily Bonus</div><div class="s">Complete all 4 tasks first to claim 100 pts (once every 24 hours)</div></div>
+        <button class="task-chip" id="dailyBonusBtn" onclick="claimDailyBonus()">Locked</button>
+      </div>
 
     <div class="disclaimer">
       <b>No pressure.</b> Skipping every task on this page has zero effect on your account, balance,
@@ -334,22 +354,15 @@ try{ tg?.expand?.(); }catch(e){}
 // Adsgram block IDs — paste your real IDs from the Adsgram dashboard.
 // Each block ID maps to ONE placement so Adsgram's reporting stays accurate
 // per-placement (reward ad vs. the in-task bonus ad are tracked separately).
-const ADSGRAM_REWARD_BLOCK_ID = 'int-37625'; // used by the Home "Watch Ad" card
-const ADSGRAM_TASK_BLOCK_ID   = 'task-37623';   // used by the Tasks "bonus ad" row only
+const ADSGRAM_REWARD_BLOCK_ID = '37622'; // used by the Home "Watch Ad" card
+const ADSGRAM_TASK_BLOCK_ID   = 'int-37625';   // used by the Tasks "bonus ad" row only
 
-// Withdrawal requests are forwarded to your Telegram admin chat (23674574),
-// but NOT by calling the Telegram Bot API directly from this page. A bot
-// token can never live in client-side code — GitHub Pages serves this file
-// publicly, so anyone who views-source would get your token and could send
-// messages, spam users, or impersonate your bot with it.
-// Instead, point this at a small server endpoint you control (a Cloudflare
-// Worker, Vercel/Netlify function, or any tiny Node server). That endpoint
-// holds the bot token as a server-side secret and calls:
-//   https://api.telegram.org/bot<TOKEN>/sendMessage
-//   { chat_id: "23674574", text: "...withdrawal details..." }
-// Swap this URL for your real endpoint once it's deployed.
-const WITHDRAWAL_ENDPOINT = 'https://YOUR-BACKEND.example.com/api/submit-withdrawal';
-const ADMIN_CHAT_ID = '23674574'; // used server-side only, kept here for reference
+// Telegram bot used to forward withdrawal requests to you for manual payout.
+// NOTE: this token is embedded in client-side code once deployed to GitHub
+// Pages, so anyone can view-source and read it. See the assistant's message
+// for why that's a real risk and what to do instead.
+const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
+const ADMIN_CHAT_ID = '23674574';
 
 /* ---------------- STATE ---------------- */
 let balance         = Number(localStorage.getItem('th_balance') || '0');
@@ -363,9 +376,7 @@ let referCount       = Number(localStorage.getItem('th_referCount') || '0');
 let referEarned      = Number(localStorage.getItem('th_referEarned') || '0');
 let activity         = JSON.parse(localStorage.getItem('th_activity') || '[]');
 
-// No artificial cooldown on the reward ad — the button is tappable any time;
-// only the daily point cap below limits it. Adsgram itself still governs
-// real ad availability/frequency on their end.
+const AD_COOLDOWN_MS   = 30 * 1000;   // 30 sec
 const AD_MAX_PER_DAY   = 300;              // pts/day cap
 const TASK_MAX_PER_DAY = 150;              // pts/day cap
 const AD_REWARD        = 10;               // pts per rewarded ad
@@ -376,41 +387,13 @@ function todayStr(){ return new Date().toDateString(); }
 if (adDailyDate !== todayStr()) { adDailyCount = 0; adDailyDate = todayStr(); }
 if (taskDailyDate !== todayStr()) { taskDailyCount = 0; taskDailyDate = todayStr(); }
 
-/* Adsgram init — Reward-format ads use the JS API (Adsgram.init/.show()).
-   Task-format blocks do NOT use this API — Adsgram's docs specify Task
-   blocks must use the <adsgram-task> web component instead. See
-   runAdsgramTask() below for that. */
-let rewardAd;
+/* Adsgram init — each unit points at its own block ID, initiated only on click below */
+let rewardAd, taskAd;
 window.addEventListener('load', () => {
   if (typeof Adsgram !== 'undefined') {
     rewardAd = Adsgram.init({ blockId: ADSGRAM_REWARD_BLOCK_ID });
+    taskAd   = Adsgram.init({ blockId: ADSGRAM_TASK_BLOCK_ID });
   }
-});
-
-/* Adsgram Task-block integration — per docs, Task ads render through the
-   <adsgram-task> custom element, not through Adsgram.init().show(). Adsgram
-   also only allows ONE Task-type block per app, so both the "Go" button and
-   the Tasks-page "bonus ad" row share this same helper + block ID. */
-function runAdsgramTask(onReward, onFail){
-  const holder = document.createElement('div');
-  holder.style.display = 'none';
-  const task = document.createElement('adsgram-task');
-  task.setAttribute('data-block-id', ADSGRAM_TASK_BLOCK_ID);
-  holder.appendChild(task);
-  document.body.appendChild(holder);
-
-  const cleanup = () => holder.remove();
-
-  task.addEventListener('reward', () => { cleanup(); onReward(); });
-  task.addEventListener('onError', () => { cleanup(); onFail?.(); });
-
-  if (typeof task.load === 'function') {
-    task.load();
-  } else {
-    cleanup();
-    onFail?.();
-  }
-}
 });
 
 /* ---------------- PERSIST + RENDER ---------------- */
@@ -463,16 +446,23 @@ function render(){
   updateAdButton();
   updateTaskButtons();
   updateWithdrawButton();
+  updateDailyBonusButton();
   persist();
 }
 
 function updateAdButton(){
   const btn = document.getElementById('watchAdBtn');
+  const now = Date.now();
+  const sinceLast = now - lastAdTime;
   const capped = adDailyCount >= AD_MAX_PER_DAY;
 
   if (capped){
     btn.disabled = true;
     btn.innerText = 'Daily cap reached';
+  } else if (sinceLast < AD_COOLDOWN_MS){
+    btn.disabled = true;
+    const mins = Math.ceil((AD_COOLDOWN_MS - sinceLast)/60000);
+    btn.innerText = `Next ad in ${mins} min`;
   } else {
     btn.disabled = false;
     btn.innerText = '▶ Watch Ad';
@@ -549,30 +539,22 @@ function completeTask(id, reward){
 function watchBonusAdTask(){
   if (completedTasks.includes('task-ad')) { toast('Already completed'); return; }
   const reward = 30;
-  runAdsgramTask(
-    () => {
-      completedTasks.push('task-ad');
-      taskDailyCount += reward;
-      balance += reward;
-      addActivity('Bonus ad task', reward);
-      toast(`+${reward} pts — bonus ad complete!`);
-      render();
-    },
-    () => toast('Ad not available right now — try again shortly')
-  );
+  const finish = () => {
+    completedTasks.push('task-ad');
+    taskDailyCount += reward;
+    balance += reward;
+    addActivity('Bonus ad task', reward);
+    toast(`+${reward} pts — bonus ad complete!`);
+    render();
+  };
+  if (taskAd){
+    taskAd.show().then(finish).catch(() => toast('Ad was closed early — no reward given'));
+  } else {
+    toast('Ad not ready — try again shortly');
+  }
 }
 
-/* "Go" button on the Home Tasks card: triggers the same Adsgram task ad
-   directly (per the Adsgram task-block integration), then drops the user
-   onto the full Tasks page either way. */
-document.getElementById('goTasksBtn').addEventListener('click', () => {
-  if (completedTasks.includes('task-ad')) {
-    showPage('tasks');
-    return;
-  }
-  watchBonusAdTask();
-  showPage('tasks');
-});
+document.getElementById('goTasksBtn').addEventListener('click', () => showPage('tasks'));
 
 document.getElementById('copyReferBtn').addEventListener('click', () => {
   const input = document.getElementById('referLinkInput');
@@ -580,23 +562,22 @@ document.getElementById('copyReferBtn').addEventListener('click', () => {
 });
 
 /* ---------------- WITHDRAWAL ---------------- */
-// Sends the request to YOUR backend, which is responsible for verifying it
-// and forwarding a message to Telegram chat 23674574 using the bot token
-// (stored server-side only — see the CONFIG note above).
-async function sendWithdrawalRequest(details){
-  const res = await fetch(WITHDRAWAL_ENDPOINT, {
+async function sendWithdrawalToTelegram(details){
+  const text =
+`💸 New withdrawal request
+User: ${details.userId}
+Method: ${details.method}
+Address: ${details.address}
+Amount: ${details.amount} pts
+Requested: ${details.when}`;
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      admin_chat_id: ADMIN_CHAT_ID,
-      user_id: details.userId,
-      method: details.method,
-      address: details.address,
-      amount: details.amount,
-      requested_at: details.when
-    })
+    body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text })
   });
-  if (!res.ok) throw new Error('Withdrawal request failed');
+  if (!res.ok) throw new Error('Telegram forward failed');
   return res.json();
 }
 
@@ -620,7 +601,7 @@ document.getElementById('withdrawBtn').addEventListener('click', async () => {
   };
 
   try{
-    await sendWithdrawalRequest(details);
+    await sendWithdrawalToTelegram(details);
     balance -= amount;
     addActivity(`Withdrawal requested (${method})`, -amount);
     toast('Request sent — you\u2019ll be paid after manual review');
@@ -632,6 +613,7 @@ document.getElementById('withdrawBtn').addEventListener('click', async () => {
     console.error(e);
   } finally {
     updateWithdrawButton();
+  updateDailyBonusButton();
   }
 });
 
@@ -642,6 +624,31 @@ function showPage(name){
   document.getElementById(`${name}-page`).classList.add('active');
   document.getElementById(`nav-${name}`).classList.add('active');
 }
+
+
+let dailyBonusDate=localStorage.getItem('th_dailyBonusDate')||'';
+function updateDailyBonusButton(){
+ const b=document.getElementById('dailyBonusBtn'); if(!b)return;
+ const done=['task-1','task-2','task-3','task-ad'].every(x=>completedTasks.includes(x));
+ if(dailyBonusDate===todayStr()){b.disabled=true;b.innerText='✅ Claimed';return;}
+ if(done){b.disabled=false;b.innerText='+100 pts';}else{b.disabled=true;b.innerText='Complete 4 Tasks';}
+}
+function claimDailyBonus(){
+ if(dailyBonusDate===todayStr()) return toast('Already claimed today');
+ if(!['task-1','task-2','task-3','task-ad'].every(x=>completedTasks.includes(x))) return toast('Complete 4 tasks first');
+ balance+=100; dailyBonusDate=todayStr(); localStorage.setItem('th_dailyBonusDate',dailyBonusDate);
+ addActivity('Daily bonus',100); toast('+100 pts daily bonus'); render();
+}
+
+
+const ADSGRAM_MANUAL_BLOCKS=['task-45776','task-45765'];
+document.addEventListener('DOMContentLoaded',()=>{
+ const b=document.getElementById('manualTaskBtn');
+ if(b)b.onclick=()=>{
+  const id=ADSGRAM_MANUAL_BLOCKS[Math.floor(Math.random()*ADSGRAM_MANUAL_BLOCKS.length)];
+  toast('Show Adsgram block: '+id+' then reward +20 after manual completion.');
+ };
+});
 
 /* ---------------- INIT ---------------- */
 if (tg?.initDataUnsafe?.user?.id) {
