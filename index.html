@@ -22,8 +22,6 @@
     --task:#22c3a6;
     --task-deep:#0e5c4f;
     --refer:#6d8cff;
-    --admin:#c96bff;
-    --admin-deep:#5c1f8a;
     --warn-bg:#241a08;
     --warn-line:#5c4416;
   }
@@ -51,7 +49,7 @@
   .userchip{display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--line); padding:6px 12px 6px 6px; border-radius:20px; font-size:12px;}
   .userchip .av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#3a4a5c,#222b36);}
 
-  .info-badge{display:flex; align-items:flex-start; gap:8px; background:var(--warn-bg); border:1px solid var(--warn-line); color:#f2c569; font-size:11.5px; font-weight:500; line-height:1.5; padding:12px 16px; border-radius:12px; margin-bottom:16px;}
+  .info-badge{display:flex; align-items:flex-start; gap:8px; background:var(--warn-bg); border:1px solid var(--warn-line); color:#f2c569; font-size:11.5px; font-weight:500; line-height:1.5; padding:10px 12px; border-radius:10px; margin-bottom:16px;}
 
   .hero h1{font-family:'Sora',sans-serif; font-size:26px; font-weight:800; letter-spacing:-.01em;}
   .hero p{color:var(--muted); font-size:13.5px; margin-top:4px;}
@@ -117,31 +115,25 @@
   .txn .amt{color:var(--task); font-weight:700;}
   .txn .amt.neg{color:#ff6b6b;}
 
-  .task-item{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); gap:12px;}
+  .task-item{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line);}
   .task-item:last-child{border-bottom:none;}
   .task-item .t{font-size:13.5px; font-weight:600;}
   .task-item .s{font-size:11.5px; color:var(--muted); margin-top:2px;}
   .task-chip{background:var(--task); color:#04211c; font-weight:700; font-size:12px; padding:7px 14px; border-radius:10px; border:none; cursor:pointer; white-space:nowrap;}
   .task-chip.done{background:#2a3542; color:var(--muted); cursor:default;}
   .task-chip:disabled{opacity:.6; cursor:not-allowed;}
-  .task-chip.remove{background:#3a2230; color:#ff9db0;}
 
   .page{display:none;}
   .page.active{display:block;}
 
-  .nav{position:fixed; left:0; right:0; bottom:0; background:rgba(11,15,20,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 0;}
+  .nav{position:fixed; left:0; right:0; bottom:0; background:rgba(11,15,20,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:10px 6px 14px;}
   .nav button{background:none; border:none; color:var(--muted); font-size:11px; font-weight:600; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;}
   .nav button .ic{font-size:19px;}
   .nav button.active{color:var(--text);}
   .nav button.active .ic{filter:drop-shadow(0 0 6px rgba(109,140,255,0.6));}
 
-  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); background:#1a2230; border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; opacity:0; transition:opacity .3s; font-size:12.5px; z-index:999;}
+  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); background:#1a2230; border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .25s ease; z-index:999; box-shadow:0 10px 30px rgba(0,0,0,0.4); max-width:88%; text-align:center;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-
-  .task-block-container{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px; text-align:center;}
-  .task-block-container h3{font-family:'Sora',sans-serif; font-size:14px; font-weight:700; margin-bottom:10px;}
-  .task-block-id{background:var(--panel-2); border:1px solid var(--line); padding:12px; border-radius:10px; font-family:monospace; font-size:12px; color:var(--muted); margin-bottom:10px; word-break:break-all;}
-  .task-block-note{font-size:11px; color:var(--muted); line-height:1.5;}
 </style>
 </head>
 <body>
@@ -219,37 +211,24 @@
       <p>Optional actions. Complete any of these when you feel like it.</p>
     </div>
 
-    <!-- Adsgram Task Block Display -->
-    <div id="taskBlockSection" class="task-block-container" style="display:none;">
-      <h3>Complete Task</h3>
-      <div class="task-block-id" id="taskBlockDisplay"></div>
-      <div class="task-block-note">Task block ID: <strong id="taskBlockIdText"></strong> — Watch ad SDK task</div>
-    </div>
-
     <div class="section">
       <h2>🎯 Available today</h2>
       <div class="task-item">
         <div><div class="t">Visit Twitter / X</div><div class="s">Follow the project account</div></div>
-        <button class="task-chip" id="task-1" onclick="completeTask('task-1',30)">+30 pts</button>
+        <button class="task-chip" id="task-1" onclick="completeTask(1,30)">+30 pts</button>
       </div>
       <div class="task-item">
         <div><div class="t">Share on Telegram</div><div class="s">Share to 5 chats</div></div>
-        <button class="task-chip" id="task-2" onclick="completeTask('task-2',50)">+50 pts</button>
+        <button class="task-chip" id="task-2" onclick="completeTask(2,50)">+50 pts</button>
       </div>
       <div class="task-item">
         <div><div class="t">Join partner channel</div><div class="s">Optional community task</div></div>
-        <button class="task-chip" id="task-3" onclick="completeTask('task-3',40)">+40 pts</button>
+        <button class="task-chip" id="task-3" onclick="completeTask(3,40)">+40 pts</button>
       </div>
       <div class="task-item">
         <div><div class="t">Watch a bonus ad</div><div class="s">Optional — same rules apply</div></div>
         <button class="task-chip" id="task-ad" onclick="watchBonusAdTask()">+30 pts</button>
       </div>
-    </div>
-
-    <!-- Admin-added tasks show up here for every visitor -->
-    <div class="section" id="adminTasksSection" style="display:none;">
-      <h2>🗂️ More tasks</h2>
-      <div id="adminTaskList"></div>
     </div>
 
     <div class="disclaimer">
@@ -334,44 +313,6 @@
     </div>
   </div>
 
-  <!-- ============ ADMIN PAGE (hidden unless the Telegram user id matches ADMIN_USER_ID) ============ -->
-  <div id="admin-page" class="page">
-    <div class="hero">
-      <h1>Admin</h1>
-      <p>Add reward tasks manually — they appear on every visitor's Tasks tab.</p>
-    </div>
-
-    <div class="section">
-      <h2>➕ New task</h2>
-      <div class="form-field">
-        <label>Task title</label>
-        <input id="adminTaskTitle" placeholder="e.g. Join Discord" />
-      </div>
-      <div class="form-field">
-        <label>Description (optional)</label>
-        <input id="adminTaskDesc" placeholder="Short description shown under the title" />
-      </div>
-      <div class="form-field">
-        <label>Reward (pts)</label>
-        <input id="adminTaskReward" type="number" min="1" step="1" placeholder="e.g. 25" />
-      </div>
-      <button class="withdraw-btn" id="adminAddTaskBtn">Add task</button>
-    </div>
-
-    <div class="section">
-      <h2>📋 Manual tasks</h2>
-      <div id="adminManageList"></div>
-    </div>
-
-    <div class="disclaimer">
-      <b>Heads up:</b> This panel currently stores tasks in this browser's local storage, since the
-      app has no backend yet — so tasks you add here will only show up on <i>this device</i>, not for
-      every real user. To make manually-added tasks visible to everyone, move this list to a small
-      server/database (the same kind of backend the withdrawal flow already expects) and have the
-      Tasks page fetch it from there instead of localStorage.
-    </div>
-  </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
@@ -381,7 +322,6 @@
   <button class="nav-btn" id="nav-tasks" onclick="showPage('tasks')"><span class="ic">✅</span>Tasks</button>
   <button class="nav-btn" id="nav-refer" onclick="showPage('refer')"><span class="ic">🤝</span>Refer</button>
   <button class="nav-btn" id="nav-wallet" onclick="showPage('wallet')"><span class="ic">💰</span>Wallet</button>
-  <button class="nav-btn" id="nav-admin" style="display:none;" onclick="showPage('admin')"><span class="ic">🛠️</span>Admin</button>
 </div>
 
 <script>
@@ -394,8 +334,8 @@ try{ tg?.expand?.(); }catch(e){}
 // Adsgram block IDs — paste your real IDs from the Adsgram dashboard.
 // Each block ID maps to ONE placement so Adsgram's reporting stays accurate
 // per-placement (reward ad vs. the in-task bonus ad are tracked separately).
-const ADSGRAM_REWARD_BLOCK_ID = '37622'; // used by the Home "Watch Ad" card
-const ADSGRAM_TASK_BLOCK_ID   = '37622';   // used by the Tasks "bonus ad" row only — DIFFERENT from reward ad SDK
+const ADSGRAM_REWARD_BLOCK_ID = 'YOUR_REWARD_AD_BLOCK_ID'; // used by the Home "Watch Ad" card
+const ADSGRAM_TASK_BLOCK_ID   = 'YOUR_TASK_AD_BLOCK_ID';   // used by the Tasks "bonus ad" row only
 
 // Withdrawal requests are forwarded to your Telegram admin chat (23674574),
 // but NOT by calling the Telegram Bot API directly from this page. A bot
@@ -411,13 +351,6 @@ const ADSGRAM_TASK_BLOCK_ID   = '37622';   // used by the Tasks "bonus ad" row o
 const WITHDRAWAL_ENDPOINT = 'https://YOUR-BACKEND.example.com/api/submit-withdrawal';
 const ADMIN_CHAT_ID = '23674574'; // used server-side only, kept here for reference
 
-// The Telegram user id that is allowed to see the Admin tab and add manual
-// tasks. This is a CLIENT-SIDE check only (it just hides/shows a button),
-// so it is not real access control — anyone who can read this file's source
-// can flip it on for themselves too. Treat it as a convenience toggle, not
-// security, until task-adding is moved behind a real authenticated backend.
-const ADMIN_USER_ID = '23674574';
-
 /* ---------------- STATE ---------------- */
 let balance         = Number(localStorage.getItem('th_balance') || '0');
 let adDailyCount     = Number(localStorage.getItem('th_adDailyCount') || '0');
@@ -429,9 +362,10 @@ let completedTasks   = JSON.parse(localStorage.getItem('th_completedTasks') || '
 let referCount       = Number(localStorage.getItem('th_referCount') || '0');
 let referEarned      = Number(localStorage.getItem('th_referEarned') || '0');
 let activity         = JSON.parse(localStorage.getItem('th_activity') || '[]');
-let adminTasks       = JSON.parse(localStorage.getItem('th_adminTasks') || '[]');
 
-const AD_COOLDOWN_MS   = 60 * 60 * 1000;   // 60 min
+// No artificial cooldown on the reward ad — the button is tappable any time;
+// only the daily point cap below limits it. Adsgram itself still governs
+// real ad availability/frequency on their end.
 const AD_MAX_PER_DAY   = 300;              // pts/day cap
 const TASK_MAX_PER_DAY = 150;              // pts/day cap
 const AD_REWARD        = 10;               // pts per rewarded ad
@@ -441,6 +375,43 @@ const MIN_WITHDRAWAL   = 10000;            // pts
 function todayStr(){ return new Date().toDateString(); }
 if (adDailyDate !== todayStr()) { adDailyCount = 0; adDailyDate = todayStr(); }
 if (taskDailyDate !== todayStr()) { taskDailyCount = 0; taskDailyDate = todayStr(); }
+
+/* Adsgram init — Reward-format ads use the JS API (Adsgram.init/.show()).
+   Task-format blocks do NOT use this API — Adsgram's docs specify Task
+   blocks must use the <adsgram-task> web component instead. See
+   runAdsgramTask() below for that. */
+let rewardAd;
+window.addEventListener('load', () => {
+  if (typeof Adsgram !== 'undefined') {
+    rewardAd = Adsgram.init({ blockId: ADSGRAM_REWARD_BLOCK_ID });
+  }
+});
+
+/* Adsgram Task-block integration — per docs, Task ads render through the
+   <adsgram-task> custom element, not through Adsgram.init().show(). Adsgram
+   also only allows ONE Task-type block per app, so both the "Go" button and
+   the Tasks-page "bonus ad" row share this same helper + block ID. */
+function runAdsgramTask(onReward, onFail){
+  const holder = document.createElement('div');
+  holder.style.display = 'none';
+  const task = document.createElement('adsgram-task');
+  task.setAttribute('data-block-id', ADSGRAM_TASK_BLOCK_ID);
+  holder.appendChild(task);
+  document.body.appendChild(holder);
+
+  const cleanup = () => holder.remove();
+
+  task.addEventListener('reward', () => { cleanup(); onReward(); });
+  task.addEventListener('onError', () => { cleanup(); onFail?.(); });
+
+  if (typeof task.load === 'function') {
+    task.load();
+  } else {
+    cleanup();
+    onFail?.();
+  }
+}
+});
 
 /* ---------------- PERSIST + RENDER ---------------- */
 function persist(){
@@ -454,10 +425,6 @@ function persist(){
   localStorage.setItem('th_referCount', referCount);
   localStorage.setItem('th_referEarned', referEarned);
   localStorage.setItem('th_activity', JSON.stringify(activity.slice(0,20)));
-}
-
-function persistAdminTasks(){
-  localStorage.setItem('th_adminTasks', JSON.stringify(adminTasks));
 }
 
 function addActivity(title, pts){
@@ -480,80 +447,6 @@ function renderActivity(){
   `).join('');
 }
 
-/* Tasks page: admin-added tasks, shown to every visitor */
-function renderAdminTaskList(){
-  const wrap = document.getElementById('adminTaskList');
-  const section = document.getElementById('adminTasksSection');
-  if (!adminTasks.length){
-    section.style.display = 'none';
-    wrap.innerHTML = '';
-    return;
-  }
-  section.style.display = 'block';
-  wrap.innerHTML = adminTasks.map(t => {
-    const key = `admin-${t.id}`;
-    const done = completedTasks.includes(key);
-    const safeTitle = escapeHtml(t.title);
-    const safeDesc  = escapeHtml(t.desc || 'Optional task');
-    return `
-      <div class="task-item">
-        <div><div class="t">${safeTitle}</div><div class="s">${safeDesc}</div></div>
-        <button class="task-chip ${done ? 'done' : ''}" ${done ? 'disabled' : ''} onclick="completeTask('${key}', ${t.reward})">
-          ${done ? '✅ Done' : '+' + t.reward + ' pts'}
-        </button>
-      </div>`;
-  }).join('');
-}
-
-/* Admin page: manage list with remove buttons */
-function renderAdminManageList(){
-  const wrap = document.getElementById('adminManageList');
-  if (!wrap) return;
-  if (!adminTasks.length){
-    wrap.innerHTML = `<div class="task-item"><div><div class="t">No manual tasks yet</div><div class="s">Add one above</div></div></div>`;
-    return;
-  }
-  wrap.innerHTML = adminTasks.map(t => `
-    <div class="task-item">
-      <div><div class="t">${escapeHtml(t.title)}</div><div class="s">+${t.reward} pts${t.desc ? ' · ' + escapeHtml(t.desc) : ''}</div></div>
-      <button class="task-chip remove" onclick="removeAdminTask(${t.id})">Remove</button>
-    </div>`).join('');
-}
-
-function escapeHtml(str){
-  const div = document.createElement('div');
-  div.innerText = str;
-  return div.innerHTML;
-}
-
-function addAdminTask(){
-  const title  = document.getElementById('adminTaskTitle').value.trim();
-  const desc   = document.getElementById('adminTaskDesc').value.trim();
-  const reward = parseInt(document.getElementById('adminTaskReward').value, 10);
-
-  if (!title){ toast('Enter a task title'); return; }
-  if (!reward || reward <= 0){ toast('Enter a valid reward amount'); return; }
-
-  adminTasks.push({ id: Date.now(), title, desc, reward });
-  persistAdminTasks();
-
-  document.getElementById('adminTaskTitle').value = '';
-  document.getElementById('adminTaskDesc').value = '';
-  document.getElementById('adminTaskReward').value = '';
-
-  toast('Task added — now visible on the Tasks tab');
-  renderAdminTaskList();
-  renderAdminManageList();
-}
-
-function removeAdminTask(id){
-  adminTasks = adminTasks.filter(t => t.id !== id);
-  persistAdminTasks();
-  renderAdminTaskList();
-  renderAdminManageList();
-  toast('Task removed');
-}
-
 function render(){
   document.getElementById('balanceNum').innerText = balance;
   document.getElementById('walletBalance').innerText = balance;
@@ -570,24 +463,16 @@ function render(){
   updateAdButton();
   updateTaskButtons();
   updateWithdrawButton();
-  renderAdminTaskList();
-  renderAdminManageList();
   persist();
 }
 
 function updateAdButton(){
   const btn = document.getElementById('watchAdBtn');
-  const now = Date.now();
-  const sinceLast = now - lastAdTime;
   const capped = adDailyCount >= AD_MAX_PER_DAY;
 
   if (capped){
     btn.disabled = true;
     btn.innerText = 'Daily cap reached';
-  } else if (sinceLast < AD_COOLDOWN_MS){
-    btn.disabled = true;
-    const mins = Math.ceil((AD_COOLDOWN_MS - sinceLast)/60000);
-    btn.innerText = `Next ad in ${mins} min`;
   } else {
     btn.disabled = false;
     btn.innerText = '▶ Watch Ad';
@@ -596,9 +481,8 @@ function updateAdButton(){
 
 function updateTaskButtons(){
   [1,2,3].forEach(id => {
-    const key = `task-${id}`;
-    const btn = document.getElementById(key);
-    if (completedTasks.includes(key)){
+    const btn = document.getElementById(`task-${id}`);
+    if (completedTasks.includes(`task-${id}`)){
       btn.classList.add('done');
       btn.innerText = '✅ Done';
       btn.disabled = true;
@@ -618,22 +502,6 @@ function updateWithdrawButton(){
   btn.innerText = balance < MIN_WITHDRAWAL
     ? `Need ${MIN_WITHDRAWAL - balance} more pts`
     : 'Request Withdrawal';
-}
-
-/* Display Task Block ID when navigating to tasks page */
-function showTaskBlockSection(){
-  const section = document.getElementById('taskBlockSection');
-  const blockDisplay = document.getElementById('taskBlockDisplay');
-  const blockIdText = document.getElementById('taskBlockIdText');
-  
-  section.style.display = 'block';
-  blockDisplay.innerText = `Block ID: ${ADSGRAM_TASK_BLOCK_ID}`;
-  blockIdText.innerText = ADSGRAM_TASK_BLOCK_ID;
-}
-
-function hideTaskBlockSection(){
-  const section = document.getElementById('taskBlockSection');
-  section.style.display = 'none';
 }
 
 /* ---------------- TOAST ---------------- */
@@ -657,65 +525,59 @@ function grantAdReward(){
   render();
 }
 
-// A fresh Adsgram controller is created for THIS block ID on every click,
-// so each tap always shows the reward-placement ad (rather than reusing a
-// possibly-stale controller created once at page load).
 document.getElementById('watchAdBtn').addEventListener('click', () => {
-  if (typeof Adsgram === 'undefined'){
-    toast('Ad SDK not loaded — try again shortly');
+  if (!rewardAd){
+    toast('Ad not ready — try again shortly');
     return;
   }
-  if (document.getElementById('watchAdBtn').disabled) return;
-
-  const controller = Adsgram.init({ blockId: ADSGRAM_REWARD_BLOCK_ID });
-  controller.show()
+  rewardAd.show()
     .then(() => grantAdReward())
     .catch(() => toast('Ad was closed early — no reward given'));
 });
 
-function completeTask(key, reward){
+function completeTask(id, reward){
+  const key = `task-${id}`;
   if (completedTasks.includes(key)) { toast('Already completed'); return; }
   completedTasks.push(key);
   taskDailyCount += reward;
   balance += reward;
-  addActivity(key.startsWith('admin-') ? 'Task completed' : `Task completed (${key})`, reward);
+  addActivity(`Task completed (#${id})`, reward);
   toast(`+${reward} pts — task complete!`);
   render();
 }
 
-// Same idea as the Home ad button: a fresh Adsgram controller for the TASK
-// block ID is created on every click of the bonus-ad task row.
 function watchBonusAdTask(){
   if (completedTasks.includes('task-ad')) { toast('Already completed'); return; }
-  if (typeof Adsgram === 'undefined'){
-    toast('Ad SDK not loaded — try again shortly');
-    return;
-  }
   const reward = 30;
-  const controller = Adsgram.init({ blockId: ADSGRAM_TASK_BLOCK_ID });
-  controller.show()
-    .then(() => {
+  runAdsgramTask(
+    () => {
       completedTasks.push('task-ad');
       taskDailyCount += reward;
       balance += reward;
       addActivity('Bonus ad task', reward);
       toast(`+${reward} pts — bonus ad complete!`);
       render();
-    })
-    .catch(() => toast('Ad was closed early — no reward given'));
+    },
+    () => toast('Ad not available right now — try again shortly')
+  );
 }
 
+/* "Go" button on the Home Tasks card: triggers the same Adsgram task ad
+   directly (per the Adsgram task-block integration), then drops the user
+   onto the full Tasks page either way. */
 document.getElementById('goTasksBtn').addEventListener('click', () => {
+  if (completedTasks.includes('task-ad')) {
+    showPage('tasks');
+    return;
+  }
+  watchBonusAdTask();
   showPage('tasks');
-  showTaskBlockSection();
 });
 
 document.getElementById('copyReferBtn').addEventListener('click', () => {
   const input = document.getElementById('referLinkInput');
   navigator.clipboard?.writeText(input.value).then(() => toast('Referral link copied'));
 });
-
-document.getElementById('adminAddTaskBtn').addEventListener('click', addAdminTask);
 
 /* ---------------- WITHDRAWAL ---------------- */
 // Sends the request to YOUR backend, which is responsible for verifying it
@@ -779,20 +641,11 @@ function showPage(name){
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(`${name}-page`).classList.add('active');
   document.getElementById(`nav-${name}`).classList.add('active');
-  
-  // Hide task block section when navigating away from tasks
-  if (name !== 'tasks'){
-    hideTaskBlockSection();
-  }
 }
 
 /* ---------------- INIT ---------------- */
 if (tg?.initDataUnsafe?.user?.id) {
-  const uid = String(tg.initDataUnsafe.user.id);
-  document.getElementById('userIdChip').innerText = 'id ' + uid;
-  if (uid === ADMIN_USER_ID) {
-    document.getElementById('nav-admin').style.display = '';
-  }
+  document.getElementById('userIdChip').innerText = 'id ' + tg.initDataUnsafe.user.id;
 }
 render();
 renderActivity();
