@@ -431,7 +431,7 @@ const ADSGRAM_HOME_WATCH_AD = '34575';
 const ADSGRAM_MANUAL_TASK_ID = 'task-34564';    // Manual tasks (30 sec cooldown)
 const ADSGRAM_DAILY_BONUS_TASK_ID = 'task-37623'; // Daily bonus task (30 sec cooldown)
 
-const CHANNEL_LINK = 'https://www.channel.com'; // TODO: replace with your real Telegram channel link
+const CHANNEL_LINK = 'https://www.challe.com'; // TODO: replace with your real Telegram channel link
 
 const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
 const ADMIN_CHAT_ID = '23674574';
@@ -493,33 +493,56 @@ if (taskDailyDate !== todayStr()) { taskDailyCount = 0; taskDailyDate = todayStr
 let homeWatchAd;
 
 window.addEventListener('load', () => {
-  if (typeof Adsgram !== 'undefined') {
-    // Watch Ad instance (HOME PAGE - 60 min cooldown)
-    homeWatchAd = Adsgram.init({ blockId: ADSGRAM_HOME_WATCH_AD });
+  if (typeof Adsgram !== 'undefined' && ADSGRAM_HOME_WATCH_AD) {
+    try {
+      // Watch Ad instance (HOME PAGE)
+      homeWatchAd = Adsgram.init({ blockId: ADSGRAM_HOME_WATCH_AD });
+    } catch (e) {
+      console.error('Adsgram init failed:', e);
+      homeWatchAd = null;
+    }
   }
-  
+
   // SHOW WELCOME AD ON APP LAUNCH
   showWelcomeAd();
 });
 
 /* --------- WELCOME FLOW --------- */
+const WELCOME_AD_WAIT_MS = 5000; // give the ad SDK up to 5s to become ready
+let welcomeAdWaitStarted = 0;
+
 function showWelcomeAd() {
   if (welcomeAdShown || hasJoinedChannel) return;
-  
+
   if (!homeWatchAd) {
-    setTimeout(showWelcomeAd, 1000);
+    // Track how long we've been waiting for the SDK to load.
+    if (!welcomeAdWaitStarted) welcomeAdWaitStarted = Date.now();
+    if (Date.now() - welcomeAdWaitStarted < WELCOME_AD_WAIT_MS) {
+      setTimeout(showWelcomeAd, 500);
+    } else {
+      // Ad never became ready — don't block onboarding on it.
+      console.warn('Adsgram ad not ready after timeout, skipping to join-channel prompt');
+      showJoinChannelPrompt();
+    }
     return;
   }
-  
-  homeWatchAd.show()
-    .then(() => {
-      // Ad finished successfully
-      showJoinChannelPrompt();
-    })
-    .catch(() => {
-      // Ad closed or failed
-      showJoinChannelPrompt();
-    });
+
+  try {
+    homeWatchAd.show()
+      .then(() => {
+        // Ad finished successfully
+        showJoinChannelPrompt();
+      })
+      .catch(() => {
+        // Ad closed or failed
+        showJoinChannelPrompt();
+      });
+  } catch (e) {
+    // Some SDK errors (e.g. bad blockId) throw synchronously instead of
+    // rejecting the promise — make sure onboarding still continues.
+    console.error('Adsgram show() failed:', e);
+    showJoinChannelPrompt();
+  }
 }
 
 function showJoinChannelPrompt() {
@@ -853,15 +876,20 @@ function grantAdReward(){
   render();
 }
 
-// HOME PAGE - Watch Ad (WATCH AD SDK - 60 min cooldown)
+// HOME PAGE - Watch Ad (WATCH AD SDK)
 document.getElementById('watchAdBtn').addEventListener('click', () => {
   if (!homeWatchAd){
     toast('Ad not ready — try again shortly');
     return;
   }
-  homeWatchAd.show()
-    .then(() => grantAdReward())
-    .catch(() => toast('Ad was closed early — no reward given'));
+  try {
+    homeWatchAd.show()
+      .then(() => grantAdReward())
+      .catch(() => toast('Ad was closed early — no reward given'));
+  } catch (e) {
+    console.error('Adsgram show() failed:', e);
+    toast('Ad failed to load — try again shortly');
+  }
 });
 
 // "Watch a bonus ad" task — reuses the SAME Watch Ad SDK instance and
@@ -879,9 +907,14 @@ function watchBonusAd(){
     toast(`Wait ${secs} seconds before the next ad`);
     return;
   }
-  homeWatchAd.show()
-    .then(() => grantAdReward())
-    .catch(() => toast('Ad was closed early — no reward given'));
+  try {
+    homeWatchAd.show()
+      .then(() => grantAdReward())
+      .catch(() => toast('Ad was closed early — no reward given'));
+  } catch (e) {
+    console.error('Adsgram show() failed:', e);
+    toast('Ad failed to load — try again shortly');
+  }
 }
 
 // Social task - mark as pending, admin approves
