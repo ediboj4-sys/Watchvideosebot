@@ -347,9 +347,9 @@ const tg = window.Telegram?.WebApp;
 try{ tg?.expand?.(); }catch(e){}
 
 // ============ CONFIGURATION ============
-const WATCH_AD_BLOCK_ID = '37622';      // Watch Ad block ID (Rewarded video)
+const WATCH_AD_BLOCK_ID = 37622;        // ✅ FIXED: Changed from string to number
 const TASK_BLOCK_ID = 'task-43543';     // Task block ID (Auto-renders in HTML)
-const JOIN_CHANNEL_AD_BLOCK_ID = '35248'; // Join channel preload ad
+const JOIN_CHANNEL_AD_BLOCK_ID = 35248; // ✅ FIXED: Changed from string to number
 
 const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
 const ADMIN_CHAT_ID = '23674574';
@@ -384,19 +384,27 @@ window.addEventListener('load', () => {
   if (typeof Adsgram !== 'undefined') {
     console.log('✅ Adsgram SDK loaded');
     
-    // ✅ Watch Ad - Init and preload
-    watchAdController = Adsgram.init(WATCH_AD_BLOCK_ID);
-    console.log('✅ Watch Ad initialized (blockId: ' + WATCH_AD_BLOCK_ID + ')');
+    // ✅ Watch Ad - Init with proper object format
+    try {
+      watchAdController = Adsgram.init({ clientId: WATCH_AD_BLOCK_ID });
+      console.log('✅ Watch Ad initialized (blockId: ' + WATCH_AD_BLOCK_ID + ')');
+    } catch (e) {
+      console.error('❌ Watch Ad init error:', e);
+    }
     
-    // ✅ Join Channel Ad - Preload and show popup
-    joinChannelAd = Adsgram.init(JOIN_CHANNEL_AD_BLOCK_ID);
-    console.log('✅ Join Channel Ad initialized (blockId: ' + JOIN_CHANNEL_AD_BLOCK_ID + ')');
-    
-    // Preload join ad and show popup when ready
-    joinChannelAd.show().finally(() => {
-      console.log('✅ Join ad preloaded - showing popup');
-      document.getElementById('joinPopup').style.display = 'flex';
-    });
+    // ✅ Join Channel Ad - Preload with proper object format
+    try {
+      joinChannelAd = Adsgram.init({ clientId: JOIN_CHANNEL_AD_BLOCK_ID });
+      console.log('✅ Join Channel Ad initialized (blockId: ' + JOIN_CHANNEL_AD_BLOCK_ID + ')');
+      
+      // Preload join ad and show popup when ready
+      joinChannelAd.show().finally(() => {
+        console.log('✅ Join ad preloaded - showing popup');
+        document.getElementById('joinPopup').style.display = 'flex';
+      });
+    } catch (e) {
+      console.error('❌ Join Channel Ad init error:', e);
+    }
   } else {
     console.error('❌ Adsgram SDK not loaded');
   }
