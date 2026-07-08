@@ -347,9 +347,9 @@ const tg = window.Telegram?.WebApp;
 try{ tg?.expand?.(); }catch(e){}
 
 // ============ CONFIGURATION ============
-const WATCH_AD_BLOCK_ID = 37622;        // ✅ FIXED: Changed from string to number
-const TASK_BLOCK_ID = 'task-43543';     // Task block ID (Auto-renders in HTML)
-const JOIN_CHANNEL_AD_BLOCK_ID = 35248; // ✅ FIXED: Changed from string to number
+// ✅ FIXED: Using blockId format (proven working method)
+const WATCH_AD_BLOCK_ID = '29779';
+const JOIN_CHANNEL_AD_BLOCK_ID = '35248';
 
 const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
 const ADMIN_CHAT_ID = '23674574';
@@ -377,38 +377,31 @@ if (adDailyDate !== todayStr()) { adDailyCount = 0; adDailyDate = todayStr(); }
 if (taskDailyDate !== todayStr()) { taskDailyCount = 0; taskDailyDate = todayStr(); }
 
 // ============ ADSGRAM SDK INIT ============
-let watchAdController = null;
-let joinChannelAd = null;
+// ✅ Using proven working method from Tap & Earn X
+let rewardAd = null;
+let joinAd = null;
 
-window.addEventListener('load', () => {
+window.onload = () => {
   if (typeof Adsgram !== 'undefined') {
     console.log('✅ Adsgram SDK loaded');
     
-    // ✅ Watch Ad - Init with proper object format
-    try {
-      watchAdController = Adsgram.init({ clientId: WATCH_AD_BLOCK_ID });
-      console.log('✅ Watch Ad initialized (blockId: ' + WATCH_AD_BLOCK_ID + ')');
-    } catch (e) {
-      console.error('❌ Watch Ad init error:', e);
-    }
+    // ✅ Watch Ad - Init with blockId format
+    rewardAd = Adsgram.init({ blockId: WATCH_AD_BLOCK_ID });
+    console.log('✅ Watch Ad initialized (blockId: ' + WATCH_AD_BLOCK_ID + ')');
     
-    // ✅ Join Channel Ad - Preload with proper object format
-    try {
-      joinChannelAd = Adsgram.init({ clientId: JOIN_CHANNEL_AD_BLOCK_ID });
-      console.log('✅ Join Channel Ad initialized (blockId: ' + JOIN_CHANNEL_AD_BLOCK_ID + ')');
-      
-      // Preload join ad and show popup when ready
-      joinChannelAd.show().finally(() => {
-        console.log('✅ Join ad preloaded - showing popup');
-        document.getElementById('joinPopup').style.display = 'flex';
-      });
-    } catch (e) {
-      console.error('❌ Join Channel Ad init error:', e);
-    }
+    // ✅ Join Channel Ad - Preload and show popup
+    joinAd = Adsgram.init({ blockId: JOIN_CHANNEL_AD_BLOCK_ID });
+    console.log('✅ Join Channel Ad initialized (blockId: ' + JOIN_CHANNEL_AD_BLOCK_ID + ')');
+    
+    // Preload join ad and show popup when ready
+    joinAd.show().finally(() => {
+      console.log('✅ Join ad preloaded - showing popup');
+      document.getElementById('joinPopup').style.display = 'flex';
+    });
   } else {
     console.error('❌ Adsgram SDK not loaded');
   }
-});
+};
 
 // ============ PERSIST & RENDER ============
 function persist(){
@@ -501,8 +494,9 @@ function toast(msg){
 }
 
 // ============ WATCH AD ============
+// ✅ Using proven working method with res?.done check
 document.getElementById('watchAdBtn').addEventListener('click', async () => {
-  if (!watchAdController){
+  if (!rewardAd) {
     toast('⏳ Ad system loading...');
     return;
   }
@@ -513,19 +507,22 @@ document.getElementById('watchAdBtn').addEventListener('click', async () => {
   btn.innerText = '⏳ Loading Ad...';
   
   try {
-    await watchAdController.show();
-    balance += AD_REWARD;
-    adDailyCount += AD_REWARD;
-    lastAdTime = Date.now();
-    addActivity('Rewarded ad watched', AD_REWARD);
-    toast(`+${AD_REWARD} pts — thanks for watching!`);
-    render();
+    const res = await rewardAd.show();
+    if (res?.done) {
+      balance += AD_REWARD;
+      adDailyCount += AD_REWARD;
+      lastAdTime = Date.now();
+      addActivity('Rewarded ad watched', AD_REWARD);
+      toast(`+${AD_REWARD} pts — thanks for watching!`);
+      render();
+    } else {
+      toast('⚠️ Ad skipped - no reward');
+    }
   } catch (error) {
     console.error('Ad error:', error);
     toast('⚠️ Ad closed - no reward');
   } finally {
     btn.innerText = originalText;
-    btn.disabled = false;
     updateAdButton();
   }
 });
