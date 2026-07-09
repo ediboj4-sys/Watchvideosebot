@@ -5,10 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TaskHub — Watch & Earn</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<!-- ✅ ADSGRAM SDK -->
+<!-- ✅ ADSGRAM SDK - Required for all ad features -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<!-- ✅ SUPABASE CLIENT -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
@@ -138,6 +136,7 @@
   .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); background:#1a2230; border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .25s ease; z-index:999; box-shadow:0 10px 30px rgba(0,0,0,0.4); max-width:88%; text-align:center;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
+  /* JOIN POPUP */
   #joinPopup{
     position:fixed; top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center;
@@ -147,6 +146,7 @@
   #joinPopup button{padding:14px 20px; border:none; border-radius:12px; background:linear-gradient(90deg,var(--refer),#3a54c9); color:#fff; font-weight:bold; cursor:pointer; font-size:16px;}
   #joinPopup button:active{transform:scale(0.96);}
 
+  /* DAILY BONUS SECTION */
   .daily-bonus-section{background:linear-gradient(135deg, rgba(242,169,59,0.15), rgba(34,195,166,0.15)); border:1px solid var(--warn-line); border-radius:16px; padding:16px; margin-bottom:16px;}
   .daily-bonus-section h3{color:#f2a93b; margin-bottom:12px; font-size:14px;}
   .bonus-progress{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
@@ -159,6 +159,7 @@
   .bonus-btn:disabled{opacity:.5; cursor:not-allowed; background:#8a96a3;}
   .bonus-note{font-size:11px; color:var(--muted); margin-top:10px; line-height:1.4;}
 
+  /* OPTIONAL TASKS */
   .optional-task-item{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line);}
   .optional-task-item:last-child{border-bottom:none;}
   .optional-task-item .t{font-size:13.5px; font-weight:600;}
@@ -168,6 +169,7 @@
   .optional-btn.done{background:#2a3542; color:var(--muted); cursor:default;}
   .optional-btn:disabled{opacity:.6;}
 
+  /* ADSGRAM BLOCK ALWAYS VISIBLE */
   .adsgram-section{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px;}
   .adsgram-section h2{font-family:'Sora',sans-serif; font-size:14.5px; font-weight:700; margin-bottom:12px;}
   .adsgram-cap{font-size:11.5px; color:var(--muted); margin-bottom:10px;}
@@ -246,6 +248,7 @@
       <p>Optional actions. Complete any of these when you feel like it.</p>
     </div>
 
+    <!-- ============ DAILY BONUS SECTION ============ -->
     <div class="daily-bonus-section">
       <h3>🎁 Daily Bonus Challenge</h3>
       <div class="bonus-progress">
@@ -267,6 +270,7 @@
       </div>
     </div>
 
+    <!-- ============ OPTIONAL TASKS SECTION ============ -->
     <div class="section">
       <h2>🎯 Quick Tasks</h2>
       <div class="optional-task-item">
@@ -298,12 +302,14 @@
       </div>
     </div>
 
+    <!-- ============ ADSGRAM TASK BLOCK - ALWAYS VISIBLE ============ -->
     <div class="adsgram-section">
       <h2>🎁 Offer Tasks - Complete Unlimited!</h2>
       <div class="adsgram-cap">
         <div style="margin-bottom:8px;">📊 Daily 0 / 300 pts | ⏱️ Cooldown: 30 sec</div>
         <div>Complete as many offers as you want with 30-second cooldown between tasks!</div>
       </div>
+      <!-- ✅ TASK BLOCK - Always visible, always available -->
       <adsgram-task id="adsgramBlock" data-block-id="task-37623"></adsgram-task>
       <p style="font-size:11px; color:var(--muted); margin-top:10px;">📋 Block ID: task-37623</p>
     </div>
@@ -390,6 +396,7 @@
   </div>
 </div>
 
+<!-- ============ JOIN POPUP ============ -->
 <div id="joinPopup">
   <h2>Join Our Channel</h2>
   <button id="joinBtn">Join Channel +5 pts</button>
@@ -405,39 +412,31 @@
 </div>
 
 <script>
-// ============ TELEGRAM & ADSGRAM ============
 const tg = window.Telegram?.WebApp;
 try{ tg?.expand?.(); }catch(e){}
 
-// ============ SUPABASE INITIALIZATION ============
-// 🔧 ADMIN: Replace with your actual Supabase credentials
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
-
-const { createClient } = window.supabase;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // ============ CONFIGURATION ============
+// ✅ Admin can edit these URLs and bonus amounts
 const OPTIONAL_TASKS_CONFIG = {
   visit: {
     title: 'Visit Website',
     description: 'Join our community',
     reward: 50,
-    url: 'https://bitcotasks.com/promote/72701',
+    url: 'https://bitcotasks.com/promote/72701',  // 🔧 ADMIN: Edit this link
     icon: '💻'
   },
   share: {
     title: 'Share on Telegram',
     description: 'Share to 5 chats',
     reward: 40,
-    url: 'https://s.hifamiapp.com/1/laIw8R0Uh',
+    url: 'https://s.hifamiapp.com/1/laIw8R0Uh',  // 🔧 ADMIN: Edit this link
     icon: '📱'
   },
   join: {
     title: 'Join Channel',
     description: 'Follow our updates',
     reward: 30,
-    url: 'https://t.me/freeupdateas',
+    url: 'https://t.me/freeupdateas',  // 🔧 ADMIN: Edit this link
     icon: '📺'
   }
 };
@@ -450,270 +449,57 @@ const DAILY_BONUS_CONFIG = {
 };
 
 const WATCH_AD_BLOCK_ID = '37622';
-const ADSGRAM_TASK_BLOCK_ID = 'task-37623';
+const ADSGRAM_TASK_BLOCK_ID = 'task-37623';  // 🔧 ADMIN: Edit this block ID
 const JOIN_CHANNEL_AD_BLOCK_ID = '37677';
+
 const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
 const ADMIN_CHAT_ID = '23674574';
 
-const AD_COOLDOWN_MS = 30 * 1000;
-const TASK_COOLDOWN_MS = 30 * 1000;
+// ============ COOLDOWN SETTINGS ============
+// ✅ 30 seconds cooldown for both ads and tasks
+// ✅ 300 pts daily limit for both ads and tasks
+const AD_COOLDOWN_MS = 30 * 1000;          // 30 seconds
+const TASK_COOLDOWN_MS = 30 * 1000;        // 30 seconds
 const AD_MAX_PER_DAY = 300;
 const TASK_MAX_PER_DAY = 300;
 const AD_REWARD = 10;
 const MIN_WITHDRAWAL = 10000;
 
 // ============ STATE ============
-let userId = null;
-let balance = 0;
-let adDailyCount = 0;
-let adDailyDate = '';
-let taskDailyCount = 0;
-let taskDailyDate = '';
-let lastAdTime = 0;
-let lastTaskTime = 0;
-let adsWatchedToday = 0;
-let tasksCompletedToday = 0;
-let bonusClaimedToday = '';
-let completedOptionalTasks = {};
-let referCount = 0;
-let referEarned = 0;
-let activity = [];
+let balance = Number(localStorage.getItem('th_balance') || '0');
+let adDailyCount = Number(localStorage.getItem('th_adDailyCount') || '0');
+let adDailyDate = localStorage.getItem('th_adDailyDate') || '';
+let taskDailyCount = Number(localStorage.getItem('th_taskDailyCount') || '0');
+let taskDailyDate = localStorage.getItem('th_taskDailyDate') || '';
+let lastAdTime = Number(localStorage.getItem('th_lastAdTime') || '0');
+let lastTaskTime = Number(localStorage.getItem('th_lastTaskTime') || '0');
+let adsWatchedToday = Number(localStorage.getItem('th_adsWatchedToday') || '0');
+let tasksCompletedToday = Number(localStorage.getItem('th_tasksCompletedToday') || '0');
+let bonusClaimedToday = localStorage.getItem('th_bonusClaimedToday') || '';
+let completedOptionalTasks = JSON.parse(localStorage.getItem('th_completedOptionalTasks') || '{}');
+let referCount = Number(localStorage.getItem('th_referCount') || '0');
+let referEarned = Number(localStorage.getItem('th_referEarned') || '0');
+let activity = JSON.parse(localStorage.getItem('th_activity') || '[]');
 
-// ============ GET OR CREATE USER ============
-async function initUser() {
-  const tgUserId = tg?.initDataUnsafe?.user?.id || 'guest_' + Math.random().toString(36).substr(2, 9);
-  
-  const { data: existingUser, error: selectError } = await supabase
-    .from('users')
-    .select('*')
-    .eq('telegram_id', tgUserId)
-    .single();
-
-  if (existingUser) {
-    userId = existingUser.id;
-    balance = existingUser.balance || 0;
-    adDailyCount = existingUser.ad_daily_count || 0;
-    adDailyDate = existingUser.ad_daily_date || '';
-    taskDailyCount = existingUser.task_daily_count || 0;
-    taskDailyDate = existingUser.task_daily_date || '';
-    lastAdTime = existingUser.last_ad_time || 0;
-    lastTaskTime = existingUser.last_task_time || 0;
-    adsWatchedToday = existingUser.ads_watched_today || 0;
-    tasksCompletedToday = existingUser.tasks_completed_today || 0;
-    bonusClaimedToday = existingUser.bonus_claimed_today || '';
-    completedOptionalTasks = existingUser.completed_optional_tasks || {};
-    referCount = existingUser.refer_count || 0;
-    referEarned = existingUser.refer_earned || 0;
-  } else {
-    // Create new user
-    const { data: newUser, error: insertError } = await supabase
-      .from('users')
-      .insert([{
-        telegram_id: tgUserId,
-        balance: 0,
-        ad_daily_count: 0,
-        task_daily_count: 0,
-        ads_watched_today: 0,
-        tasks_completed_today: 0,
-        refer_count: 0,
-        refer_earned: 0,
-        completed_optional_tasks: {}
-      }])
-      .select()
-      .single();
-
-    if (newUser) {
-      userId = newUser.id;
-    }
-  }
-
-  // Load activity
-  await loadActivity();
-  
-  // Set user chip
-  document.getElementById('userIdChip').innerText = 'id ' + tgUserId;
-  
-  render();
-  renderActivity();
-}
-
-// ============ RESET DAILY COUNTS ============
 function todayStr(){ return new Date().toDateString(); }
-
-async function resetDailyIfNeeded() {
-  const today = todayStr();
-  
-  if (adDailyDate !== today) {
-    adDailyCount = 0;
-    adDailyDate = today;
-    adsWatchedToday = 0;
-    tasksCompletedToday = 0;
-    bonusClaimedToday = '';
-    await supabase.from('users').update({
-      ad_daily_count: 0,
-      ad_daily_date: today,
-      task_daily_count: 0,
-      task_daily_date: today,
-      ads_watched_today: 0,
-      tasks_completed_today: 0,
-      bonus_claimed_today: ''
-    }).eq('id', userId);
-  }
+if (adDailyDate !== todayStr()) { 
+  adDailyCount = 0; 
+  adDailyDate = todayStr();
+  adsWatchedToday = 0;
+  tasksCompletedToday = 0;
+  bonusClaimedToday = '';
 }
 
-// ============ PERSIST TO SUPABASE ============
-async function persistUser() {
-  if (!userId) return;
-  
-  const { error } = await supabase
-    .from('users')
-    .update({
-      balance,
-      ad_daily_count: adDailyCount,
-      ad_daily_date: adDailyDate,
-      task_daily_count: taskDailyCount,
-      task_daily_date: taskDailyDate,
-      last_ad_time: lastAdTime,
-      last_task_time: lastTaskTime,
-      ads_watched_today: adsWatchedToday,
-      tasks_completed_today: tasksCompletedToday,
-      bonus_claimed_today: bonusClaimedToday,
-      completed_optional_tasks: completedOptionalTasks,
-      refer_count: referCount,
-      refer_earned: referEarned
-    })
-    .eq('id', userId);
-  
-  if (error) console.error('Persist error:', error);
+if (taskDailyDate !== todayStr()) {
+  taskDailyCount = 0;
+  taskDailyDate = todayStr();
 }
 
-// ============ ACTIVITY ============
-async function addActivity(title, pts) {
-  if (!userId) return;
-  
-  const { error } = await supabase
-    .from('activity')
-    .insert([{
-      user_id: userId,
-      title,
-      pts,
-      created_at: new Date().toISOString()
-    }]);
-  
-  if (error) console.error('Activity error:', error);
-  await loadActivity();
-  renderActivity();
-}
-
-async function loadActivity() {
-  if (!userId) return;
-  
-  const { data, error } = await supabase
-    .from('activity')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(20);
-  
-  if (error) {
-    console.error('Load activity error:', error);
-    activity = [];
-  } else {
-    activity = (data || []).map(a => ({
-      title: a.title,
-      pts: a.pts,
-      when: new Date(a.created_at).toLocaleString()
-    }));
-  }
-}
-
-function renderActivity() {
-  const list = document.getElementById('txnList');
-  if (!activity.length) {
-    list.innerHTML = '<div class="txn"><div><div class="t">No activity yet</div><div class="d">Watch an ad or complete a task to get started</div></div></div>';
-    return;
-  }
-  list.innerHTML = activity.slice(0, 10).map(a => `<div class="txn"><div><div class="t">${a.title}</div><div class="d">${a.when}</div></div><div class="amt ${a.pts < 0 ? 'neg' : ''}">${a.pts > 0 ? '+' : ''}${a.pts} pts</div></div>`).join('');
-}
-
-// ============ RENDER ============
-function updateDailyBonus() {
-  const adsWatchedRequired = DAILY_BONUS_CONFIG.adsWatchedRequired;
-  const tasksCompletedRequired = DAILY_BONUS_CONFIG.tasksCompletedRequired;
-  
-  document.getElementById('adsWatchedCount').innerText = `${adsWatchedToday}/${adsWatchedRequired}`;
-  document.getElementById('tasksCompletedCount').innerText = `${tasksCompletedToday}/${tasksCompletedRequired}`;
-  
-  const progress = ((adsWatchedToday + tasksCompletedToday) / (adsWatchedRequired + tasksCompletedRequired)) * 100;
-  document.getElementById('bonusProgressBar').style.width = Math.min(100, progress) + '%';
-  
-  const canClaimBonus = adsWatchedToday >= adsWatchedRequired && tasksCompletedToday >= tasksCompletedRequired && bonusClaimedToday !== todayStr();
-  document.getElementById('claimBonusBtn').disabled = !canClaimBonus;
-}
-
-function render() {
-  document.getElementById('balanceNum').innerText = balance;
-  document.getElementById('walletBalance').innerText = balance;
-  document.getElementById('adDailyCap').innerText = `Daily ${adDailyCount} / ${AD_MAX_PER_DAY}`;
-  document.getElementById('adProgressFill').style.width = Math.min(100, (adDailyCount / AD_MAX_PER_DAY) * 100) + '%';
-  document.getElementById('taskDailyCap').innerText = `Daily ${taskDailyCount} / ${TASK_MAX_PER_DAY}`;
-  document.getElementById('taskProgressFill').style.width = Math.min(100, (taskDailyCount / TASK_MAX_PER_DAY) * 100) + '%';
-  document.getElementById('referCount').innerText = `${referCount} friends joined`;
-  document.getElementById('referEarned').innerText = `+${referEarned} pts`;
-  updateDailyBonus();
-  updateOptionalTaskButtons();
-  updateAdButton();
-  persistUser();
-}
-
-function updateAdButton() {
-  const btn = document.getElementById('watchAdBtn');
-  const now = Date.now();
-  const sinceLast = now - lastAdTime;
-  const capped = adDailyCount >= AD_MAX_PER_DAY;
-
-  if (capped) {
-    btn.disabled = true;
-    btn.innerText = 'Daily cap reached';
-  } else if (sinceLast < AD_COOLDOWN_MS) {
-    btn.disabled = true;
-    const secs = Math.ceil((AD_COOLDOWN_MS - sinceLast) / 1000);
-    btn.innerText = `Next ad in ${secs}s`;
-  } else {
-    btn.disabled = false;
-    btn.innerText = '▶ Watch Ad';
-  }
-}
-
-function updateOptionalTaskButtons() {
-  ['visit', 'share', 'join'].forEach(taskId => {
-    const btn = document.getElementById(`task-${taskId}`);
-    if (completedOptionalTasks[taskId]) {
-      btn.classList.add('done');
-      btn.innerText = '✅ Done';
-      btn.disabled = true;
-    }
-  });
-}
-
-// ============ TOAST ============
-let toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.innerText = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
-}
-
-// ============ WATCH AD ============
+// ============ ADSGRAM SDK INIT ============
 let rewardAd = null;
 let joinAd = null;
 
-window.onload = async () => {
-  await initUser();
-  await resetDailyIfNeeded();
-  
+window.onload = () => {
   if (typeof Adsgram !== 'undefined') {
     console.log('✅ Adsgram SDK loaded');
     
@@ -727,9 +513,114 @@ window.onload = async () => {
       console.log('✅ Join ad preloaded');
       document.getElementById('joinPopup').style.display = 'flex';
     });
+  } else {
+    console.error('❌ Adsgram SDK not loaded');
   }
 };
 
+// ============ PERSIST & RENDER ============
+function persist(){
+  localStorage.setItem('th_balance', balance);
+  localStorage.setItem('th_adDailyCount', adDailyCount);
+  localStorage.setItem('th_adDailyDate', adDailyDate);
+  localStorage.setItem('th_taskDailyCount', taskDailyCount);
+  localStorage.setItem('th_taskDailyDate', taskDailyDate);
+  localStorage.setItem('th_lastAdTime', lastAdTime);
+  localStorage.setItem('th_lastTaskTime', lastTaskTime);
+  localStorage.setItem('th_adsWatchedToday', adsWatchedToday);
+  localStorage.setItem('th_tasksCompletedToday', tasksCompletedToday);
+  localStorage.setItem('th_bonusClaimedToday', bonusClaimedToday);
+  localStorage.setItem('th_completedOptionalTasks', JSON.stringify(completedOptionalTasks));
+  localStorage.setItem('th_referCount', referCount);
+  localStorage.setItem('th_referEarned', referEarned);
+  localStorage.setItem('th_activity', JSON.stringify(activity.slice(0,20)));
+}
+
+function addActivity(title, pts){
+  activity.unshift({ title, pts, when: new Date().toLocaleString() });
+  persist();
+  renderActivity();
+}
+
+function renderActivity(){
+  const list = document.getElementById('txnList');
+  if (!activity.length){
+    list.innerHTML = '<div class="txn"><div><div class="t">No activity yet</div><div class="d">Watch an ad or complete a task to get started</div></div></div>';
+    return;
+  }
+  list.innerHTML = activity.slice(0,10).map(a => `<div class="txn"><div><div class="t">${a.title}</div><div class="d">${a.when}</div></div><div class="amt ${a.pts < 0 ? 'neg' : ''}">${a.pts > 0 ? '+' : ''}${a.pts} pts</div></div>`).join('');
+}
+
+function updateDailyBonus(){
+  const adsWatchedRequired = DAILY_BONUS_CONFIG.adsWatchedRequired;
+  const tasksCompletedRequired = DAILY_BONUS_CONFIG.tasksCompletedRequired;
+  
+  document.getElementById('adsWatchedCount').innerText = `${adsWatchedToday}/${adsWatchedRequired}`;
+  document.getElementById('tasksCompletedCount').innerText = `${tasksCompletedToday}/${tasksCompletedRequired}`;
+  
+  const progress = ((adsWatchedToday + tasksCompletedToday) / (adsWatchedRequired + tasksCompletedRequired)) * 100;
+  document.getElementById('bonusProgressBar').style.width = Math.min(100, progress) + '%';
+  
+  const canClaimBonus = adsWatchedToday >= adsWatchedRequired && tasksCompletedToday >= tasksCompletedRequired && bonusClaimedToday !== todayStr();
+  document.getElementById('claimBonusBtn').disabled = !canClaimBonus;
+}
+
+function render(){
+  document.getElementById('balanceNum').innerText = balance;
+  document.getElementById('walletBalance').innerText = balance;
+  document.getElementById('adDailyCap').innerText = `Daily ${adDailyCount} / ${AD_MAX_PER_DAY}`;
+  document.getElementById('adProgressFill').style.width = Math.min(100, (adDailyCount/AD_MAX_PER_DAY)*100) + '%';
+  document.getElementById('taskDailyCap').innerText = `Daily ${taskDailyCount} / ${TASK_MAX_PER_DAY}`;
+  document.getElementById('taskProgressFill').style.width = Math.min(100, (taskDailyCount/TASK_MAX_PER_DAY)*100) + '%';
+  document.getElementById('referCount').innerText = `${referCount} friends joined`;
+  document.getElementById('referEarned').innerText = `+${referEarned} pts`;
+  updateDailyBonus();
+  updateOptionalTaskButtons();
+  updateAdButton();
+  persist();
+}
+
+function updateAdButton(){
+  const btn = document.getElementById('watchAdBtn');
+  const now = Date.now();
+  const sinceLast = now - lastAdTime;
+  const capped = adDailyCount >= AD_MAX_PER_DAY;
+
+  if (capped){
+    btn.disabled = true;
+    btn.innerText = 'Daily cap reached';
+  } else if (sinceLast < AD_COOLDOWN_MS){
+    btn.disabled = true;
+    const secs = Math.ceil((AD_COOLDOWN_MS - sinceLast)/1000);
+    btn.innerText = `Next ad in ${secs}s`;
+  } else {
+    btn.disabled = false;
+    btn.innerText = '▶ Watch Ad';
+  }
+}
+
+function updateOptionalTaskButtons(){
+  ['visit', 'share', 'join'].forEach(taskId => {
+    const btn = document.getElementById(`task-${taskId}`);
+    if (completedOptionalTasks[taskId]){
+      btn.classList.add('done');
+      btn.innerText = '✅ Done';
+      btn.disabled = true;
+    }
+  });
+}
+
+// ============ TOAST ============
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.innerText = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ============ WATCH AD ============
 document.getElementById('watchAdBtn').addEventListener('click', async () => {
   if (!rewardAd) {
     toast('⏳ Ad system loading...');
@@ -747,7 +638,7 @@ document.getElementById('watchAdBtn').addEventListener('click', async () => {
       adDailyCount += AD_REWARD;
       lastAdTime = Date.now();
       adsWatchedToday++;
-      await addActivity('Rewarded ad watched', AD_REWARD);
+      addActivity('Rewarded ad watched', AD_REWARD);
       toast(`+${AD_REWARD} pts — thanks for watching!`);
       updateDailyBonus();
       render();
@@ -763,7 +654,7 @@ document.getElementById('watchAdBtn').addEventListener('click', async () => {
 });
 
 // ============ OPTIONAL TASKS ============
-async function completeOptionalTask(taskId) {
+function completeOptionalTask(taskId){
   if (completedOptionalTasks[taskId]) {
     toast('Already completed');
     return;
@@ -771,32 +662,34 @@ async function completeOptionalTask(taskId) {
   
   const config = OPTIONAL_TASKS_CONFIG[taskId];
   
+  // Open link
   window.open(config.url, '_blank');
   
+  // Mark as completed
   completedOptionalTasks[taskId] = true;
   balance += config.reward;
   tasksCompletedToday++;
-  await addActivity(`Task completed: ${config.title}`, config.reward);
+  addActivity(`Task completed: ${config.title}`, config.reward);
   toast(`+${config.reward} pts — ${config.title} completed!`);
   updateDailyBonus();
   render();
 }
 
 // ============ CLAIM DAILY BONUS ============
-document.getElementById('claimBonusBtn').addEventListener('click', async () => {
+document.getElementById('claimBonusBtn').addEventListener('click', () => {
   const bonusReward = DAILY_BONUS_CONFIG.bonusReward;
   balance += bonusReward;
   bonusClaimedToday = todayStr();
-  await addActivity('Daily bonus claimed', bonusReward);
+  addActivity('Daily bonus claimed', bonusReward);
   toast(DAILY_BONUS_CONFIG.bonusMessage);
   document.getElementById('claimBonusBtn').disabled = true;
   render();
 });
 
 // ============ JOIN CHANNEL ============
-document.getElementById('joinBtn').onclick = async () => {
+document.getElementById('joinBtn').onclick = () => {
   balance += 5;
-  await addActivity('Joined channel', 5);
+  addActivity('Joined channel', 5);
   document.getElementById("joinPopup").style.display = "none";
   toast('✨ +5 pts for joining!');
   window.open(OPTIONAL_TASKS_CONFIG.join.url, "_blank");
@@ -810,14 +703,10 @@ document.getElementById('copyReferBtn').addEventListener('click', () => {
 });
 
 // ============ WITHDRAWAL ============
-async function sendWithdrawalToTelegram(details) {
+async function sendWithdrawalToTelegram(details){
   const text = `💸 New withdrawal request\nUser: ${details.userId}\nMethod: ${details.method}\nAddress: ${details.address}\nAmount: ${details.amount} pts\nRequested: ${details.when}`;
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text })
-  });
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text }) });
   if (!res.ok) throw new Error('Telegram forward failed');
   return res.json();
 }
@@ -835,37 +724,21 @@ document.getElementById('withdrawBtn').addEventListener('click', async () => {
   btn.disabled = true;
   btn.innerText = 'Sending request…';
 
-  const tgUserId = tg?.initDataUnsafe?.user?.id || 'unknown';
   const details = {
-    userId: tgUserId,
+    userId: tg?.initDataUnsafe?.user?.id || 'unknown',
     method, address, amount,
     when: new Date().toLocaleString()
   };
 
-  try {
+  try{
     await sendWithdrawalToTelegram(details);
-    
-    // Save withdrawal to Supabase
-    const { error } = await supabase
-      .from('withdrawals')
-      .insert([{
-        user_id: userId,
-        method,
-        address,
-        amount,
-        status: 'pending',
-        created_at: new Date().toISOString()
-      }]);
-    
-    if (error) throw error;
-    
     balance -= amount;
-    await addActivity(`Withdrawal requested (${method})`, -amount);
+    addActivity(`Withdrawal requested (${method})`, -amount);
     toast('✅ Withdrawal sent for review!');
     document.getElementById('withdrawAddress').value = '';
     document.getElementById('withdrawAmount').value = '';
     render();
-  } catch (e) {
+  } catch(e){
     toast('⚠️ Error sending request');
     console.error(e);
   } finally {
@@ -875,14 +748,19 @@ document.getElementById('withdrawBtn').addEventListener('click', async () => {
 });
 
 // ============ NAVIGATION ============
-function showPage(name) {
+function showPage(name){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(`${name}-page`).classList.add('active');
   document.getElementById(`nav-${name}`).classList.add('active');
 }
 
-// ============ AUTO UPDATE AD BUTTON ============
+// ============ INIT ============
+if (tg?.initDataUnsafe?.user?.id) {
+  document.getElementById('userIdChip').innerText = 'id ' + tg.initDataUnsafe.user.id;
+}
+render();
+renderActivity();
 setInterval(updateAdButton, 1000);
 </script>
 
