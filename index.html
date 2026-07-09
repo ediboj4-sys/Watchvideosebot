@@ -171,6 +171,25 @@
   .adsgram-section{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px;}
   .adsgram-section h2{font-family:'Sora',sans-serif; font-size:14.5px; font-weight:700; margin-bottom:12px;}
   .adsgram-cap{font-size:11.5px; color:var(--muted); margin-bottom:10px;}
+
+  /* ✅ LEADERBOARD STYLES */
+  .leaderboard-tabs{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;}
+  .leaderboard-tab-btn{background:var(--panel); border:1px solid var(--line); color:var(--muted); padding:10px; border-radius:10px; cursor:pointer; font-weight:600; font-size:12px; transition:all 0.2s;}
+  .leaderboard-tab-btn.active{background:var(--refer); color:#fff; border-color:var(--refer);}
+  
+  .leaderboard-list{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px;}
+  .leaderboard-item{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);}
+  .leaderboard-item:last-child{border-bottom:none;}
+  .leaderboard-rank{font-size:16px; font-weight:800; color:var(--refer); min-width:28px; text-align:center;}
+  .leaderboard-rank.gold{color:#f2a93b;}
+  .leaderboard-rank.silver{color:#8a96a3;}
+  .leaderboard-rank.bronze{color:#b8860b;}
+  .leaderboard-info{flex:1;}
+  .leaderboard-name{font-size:13px; font-weight:600; color:var(--text);}
+  .leaderboard-stat{font-size:11px; color:var(--muted); margin-top:2px;}
+  .leaderboard-value{text-align:right;}
+  .leaderboard-value .val{font-size:14px; font-weight:700; color:var(--task);}
+  .leaderboard-value .label{font-size:10px; color:var(--muted);}
 </style>
 </head>
 <body>
@@ -316,30 +335,50 @@
   <!-- ============ REFERRAL PAGE ============ -->
   <div id="refer-page" class="page">
     <div class="hero">
-      <h1>Refer friends</h1>
-      <p>Share your link — earn points for every friend who joins.</p>
+      <h1>Refer & Lead</h1>
+      <p>Share your link — earn 100 pts per friend. Climb the leaderboard!</p>
     </div>
 
     <div class="section">
       <div class="refer-box">
         <div class="refer-icon">🤝</div>
         <div class="refer-copy">
-          <div class="t">+20 pts per referral</div>
-          <div class="s">Credited once your friend opens the app</div>
+          <div class="t">+100 pts per referral</div>
+          <div class="s">Credited when friend joins and watches ads</div>
         </div>
       </div>
       <div class="refer-link-row">
-        <input id="referLinkInput" readonly value="https://t.me/Watchvideosebot?start=ref_000000" />
+        <input id="referLinkInput" readonly value="https://t.me/Watchvideosebot?start=ref_" />
         <button id="copyReferBtn">Copy</button>
       </div>
     </div>
 
     <div class="section">
-      <h2>Your referrals</h2>
+      <h2>📊 Your Stats</h2>
       <div class="task-item">
-        <div><div class="t" id="referCount">0 friends joined</div><div class="s">Track your invites here</div></div>
+        <div><div class="t" id="referCount">0 friends joined</div><div class="s">Active referrals</div></div>
         <div class="amt" style="color:var(--refer); font-weight:700;" id="referEarned">+0 pts</div>
       </div>
+    </div>
+
+    <!-- ============ LEADERBOARD ============ -->
+    <div class="leaderboard-tabs">
+      <button class="leaderboard-tab-btn active" onclick="switchLeaderboard('referrers')">👥 Top Referrers</button>
+      <button class="leaderboard-tab-btn" onclick="switchLeaderboard('earners')">💰 Top Earners</button>
+    </div>
+
+    <div class="leaderboard-list" id="leaderboardContainer">
+      <div class="leaderboard-item">
+        <div class="leaderboard-rank">📊</div>
+        <div class="leaderboard-info">
+          <div class="leaderboard-name">Loading leaderboard...</div>
+          <div class="leaderboard-stat">Please wait</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <b>Build your network.</b> Referral rewards are instant. Share with friends and earn passive income!
     </div>
   </div>
 
@@ -459,10 +498,12 @@ const TASK_COOLDOWN_MS = 30 * 1000;
 const AD_MAX_PER_DAY = 300;
 const TASK_MAX_PER_DAY = 300;
 const AD_REWARD = 10;
+const REFERRAL_REWARD = 100; // ✅ 100 pts per referral
 const MIN_WITHDRAWAL = 10000;
 
 // ============ STATE ============
 let userId = null;
+let userTgId = null;
 let balance = 0;
 let adDailyCount = 0;
 let adDailyDate = '';
@@ -477,10 +518,12 @@ let completedOptionalTasks = {};
 let referCount = 0;
 let referEarned = 0;
 let activity = [];
+let currentLeaderboardTab = 'referrers';
 
 // ============ GET OR CREATE USER ============
 async function initUser() {
   const tgUserId = tg?.initDataUnsafe?.user?.id || 'guest_' + Math.random().toString(36).substr(2, 9);
+  userTgId = tgUserId;
   
   const { data: existingUser, error: selectError } = await supabase
     .from('users')
@@ -533,11 +576,100 @@ async function initUser() {
   // Load activity
   await loadActivity();
   
+  // Update referral link with actual user ID
+  updateReferralLink();
+  
   // Set user chip
   document.getElementById('userIdChip').innerText = 'id ' + tgUserId;
   
   render();
   renderActivity();
+}
+
+// ============ UPDATE REFERRAL LINK ============
+function updateReferralLink() {
+  const link = `https://t.me/Watchvideosebot?start=ref_${userTgId}`;
+  document.getElementById('referLinkInput').value = link;
+}
+
+// ============ PROCESS REFERRAL (When someone uses your link) ============
+async function processReferralCode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const refCode = urlParams.get('start');
+  
+  if (!refCode || !refCode.startsWith('ref_')) return;
+  
+  const referrerTgId = refCode.replace('ref_', '');
+  if (referrerTgId === userTgId) return; // Don't refer yourself
+  
+  const { data: referrer } = await supabase
+    .from('users')
+    .select('id')
+    .eq('telegram_id', referrerTgId)
+    .single();
+  
+  if (!referrer) return;
+  
+  // Check if already counted
+  const { data: existing } = await supabase
+    .from('referrals')
+    .select('id')
+    .eq('referrer_id', referrer.id)
+    .eq('referred_id', userId)
+    .single();
+  
+  if (existing) return; // Already referred
+  
+  // Record the referral
+  const { error } = await supabase
+    .from('referrals')
+    .insert([{
+      referrer_id: referrer.id,
+      referred_id: userId,
+      created_at: new Date().toISOString(),
+      reward_given: false
+    }]);
+  
+  if (!error) {
+    console.log('✅ Referral recorded');
+  }
+}
+
+// ============ CHECK & AWARD REFERRAL REWARDS ============
+async function checkAndAwardReferrals() {
+  if (!userId) return;
+  
+  // Get all referrals that haven't been rewarded yet
+  const { data: pendingReferrals } = await supabase
+    .from('referrals')
+    .select('*')
+    .eq('referrer_id', userId)
+    .eq('reward_given', false);
+  
+  for (const ref of pendingReferrals || []) {
+    // Award the referral reward
+    const { data: updatedUser } = await supabase
+      .from('users')
+      .select('refer_count, refer_earned')
+      .eq('id', userId)
+      .single();
+    
+    referCount = (updatedUser?.refer_count || 0) + 1;
+    referEarned = (updatedUser?.refer_earned || 0) + REFERRAL_REWARD;
+    balance += REFERRAL_REWARD;
+    
+    // Mark referral as rewarded
+    await supabase
+      .from('referrals')
+      .update({ reward_given: true })
+      .eq('id', ref.id);
+    
+    // Add activity
+    await addActivity('New referral reward', REFERRAL_REWARD);
+    toast('🎉 +' + REFERRAL_REWARD + ' pts from referral!');
+  }
+  
+  render();
 }
 
 // ============ RESET DAILY COUNTS ============
@@ -643,6 +775,73 @@ function renderActivity() {
   list.innerHTML = activity.slice(0, 10).map(a => `<div class="txn"><div><div class="t">${a.title}</div><div class="d">${a.when}</div></div><div class="amt ${a.pts < 0 ? 'neg' : ''}">${a.pts > 0 ? '+' : ''}${a.pts} pts</div></div>`).join('');
 }
 
+// ============ LEADERBOARD ============
+async function loadLeaderboard() {
+  let query;
+  
+  if (currentLeaderboardTab === 'referrers') {
+    query = supabase
+      .from('users')
+      .select('telegram_id, refer_count')
+      .order('refer_count', { ascending: false })
+      .limit(10);
+  } else {
+    query = supabase
+      .from('users')
+      .select('telegram_id, balance')
+      .order('balance', { ascending: false })
+      .limit(10);
+  }
+  
+  const { data, error } = await query;
+  
+  if (error) {
+    console.error('Leaderboard error:', error);
+    return;
+  }
+  
+  renderLeaderboard(data || []);
+}
+
+function renderLeaderboard(data) {
+  const container = document.getElementById('leaderboardContainer');
+  
+  if (!data.length) {
+    container.innerHTML = '<div class="leaderboard-item"><div class="leaderboard-rank">📊</div><div class="leaderboard-info"><div class="leaderboard-name">No data yet</div></div></div>';
+    return;
+  }
+  
+  const medals = ['🥇', '🥈', '🥉'];
+  
+  container.innerHTML = data.map((user, idx) => {
+    const medal = medals[idx] || (idx + 1);
+    const isCurrentUser = user.telegram_id === userTgId;
+    const value = currentLeaderboardTab === 'referrers' ? user.refer_count : user.balance;
+    const label = currentLeaderboardTab === 'referrers' ? 'referrals' : 'pts';
+    
+    return `
+      <div class="leaderboard-item" style="${isCurrentUser ? 'background:rgba(109,140,255,0.1); border:1px solid var(--refer); border-radius:10px; padding:8px;' : ''}">
+        <div class="leaderboard-rank">${medal}</div>
+        <div class="leaderboard-info">
+          <div class="leaderboard-name">${isCurrentUser ? '📍 You' : 'User #' + user.telegram_id}</div>
+          <div class="leaderboard-stat">${isCurrentUser ? 'Your rank' : 'Rank #' + (idx + 1)}</div>
+        </div>
+        <div class="leaderboard-value">
+          <div class="val">${value}</div>
+          <div class="label">${label}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function switchLeaderboard(tab) {
+  currentLeaderboardTab = tab;
+  document.querySelectorAll('.leaderboard-tab-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  loadLeaderboard();
+}
+
 // ============ RENDER ============
 function updateDailyBonus() {
   const adsWatchedRequired = DAILY_BONUS_CONFIG.adsWatchedRequired;
@@ -724,6 +923,9 @@ let joinAd = null;
 window.onload = async () => {
   await initUser();
   await resetDailyIfNeeded();
+  await processReferralCode();
+  await checkAndAwardReferrals();
+  await loadLeaderboard();
   
   if (typeof Adsgram !== 'undefined') {
     console.log('✅ Adsgram SDK loaded');
@@ -741,6 +943,9 @@ window.onload = async () => {
   } else {
     console.warn('⚠️ Adsgram SDK not loaded');
   }
+  
+  // Refresh leaderboard every 10 seconds
+  setInterval(loadLeaderboard, 10000);
 };
 
 document.getElementById('watchAdBtn').addEventListener('click', async () => {
@@ -856,12 +1061,10 @@ document.getElementById('withdrawBtn').addEventListener('click', async () => {
   };
 
   try {
-    // Try Telegram if bot token is set
     if (TELEGRAM_BOT_TOKEN !== 'YOUR_BOT_TOKEN') {
       await sendWithdrawalToTelegram(details);
     }
     
-    // Save withdrawal to Supabase
     const { error } = await supabase
       .from('withdrawals')
       .insert([{
