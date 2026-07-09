@@ -74,7 +74,6 @@
   .earn-btn{width:100%; margin-top:12px; padding:10px; border:none; border-radius:12px; background:rgba(0,0,0,0.82); color:#fff; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;}
   .earn-btn:disabled{opacity:.55; cursor:not-allowed;}
   .earn-btn:active:not(:disabled){transform:scale(.97);}
-  .earn-btn:hover:not(:disabled){background:rgba(0,0,0,0.95);}
 
   .disclaimer{background:var(--warn-bg); border:1px solid var(--warn-line); border-radius:14px; padding:14px 16px; margin-bottom:16px; font-size:12.5px; line-height:1.5; color:#e8d3a0;}
   .disclaimer b{color:#f2c569;}
@@ -86,6 +85,8 @@
   .rules .row{display:flex; justify-content:space-between; font-size:13px; padding:4px 0;}
   .rules .row span:last-child{font-weight:700;}
 
+  .live-note{text-align:center; font-size:12px; color:var(--muted); margin:-4px 0 16px;}
+
   .refer-box{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
   .refer-icon{width:44px;height:44px;border-radius:12px; background:linear-gradient(135deg, var(--refer), #3a54c9); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;}
   .refer-copy{flex:1;}
@@ -94,7 +95,6 @@
   .refer-link-row{display:flex; gap:8px; margin-top:10px;}
   .refer-link-row input{flex:1; background:var(--panel-2); border:1px solid var(--line); color:var(--muted); padding:10px 12px; border-radius:10px; font-size:12px;}
   .refer-link-row button{background:var(--refer); color:#fff; border:none; padding:0 16px; border-radius:10px; font-weight:700; font-size:12.5px; cursor:pointer;}
-  .refer-link-row button:active{transform:scale(0.95);}
 
   .wallet-hero{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:20px; text-align:center; margin-bottom:16px;}
   .wallet-hero .lbl{font-size:12px; color:var(--muted);}
@@ -109,7 +109,7 @@
   }
   .withdraw-btn{width:100%; margin-top:14px; padding:12px; border:none; border-radius:12px; background:linear-gradient(90deg,var(--refer),#3a54c9); color:#fff; font-weight:700; font-size:13.5px; cursor:pointer;}
   .withdraw-btn:disabled{opacity:.5; cursor:not-allowed;}
-  .withdraw-btn:active:not(:disabled){transform:scale(0.97);}
+  .withdraw-note{font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.5;}
 
   .txn{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:13px;}
   .txn:last-child{border-bottom:none;}
@@ -117,6 +117,14 @@
   .txn .d{font-size:11.5px; color:var(--muted); margin-top:2px;}
   .txn .amt{color:var(--task); font-weight:700;}
   .txn .amt.neg{color:#ff6b6b;}
+
+  .task-item{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line);}
+  .task-item:last-child{border-bottom:none;}
+  .task-item .t{font-size:13.5px; font-weight:600;}
+  .task-item .s{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .task-chip{background:var(--task); color:#04211c; font-weight:700; font-size:12px; padding:7px 14px; border-radius:10px; border:none; cursor:pointer; white-space:nowrap;}
+  .task-chip.done{background:#2a3542; color:var(--muted); cursor:default;}
+  .task-chip:disabled{opacity:.6; cursor:not-allowed;}
 
   .page{display:none;}
   .page.active{display:block;}
@@ -127,4 +135,756 @@
   .nav button.active{color:var(--text);}
   .nav button.active .ic{filter:drop-shadow(0 0 6px rgba(109,140,255,0.6));}
 
-  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); background:#1a2230; border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .25s ease; z-index:999; box-shadow:0 10px 30px rgba(0,0,0,0.4); max-width:88%; text-align:center;}\n  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}\n\n  .bonus-btn{width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(90deg, #f2a93b, #22c3a6); color:#000; font-weight:700; cursor:pointer;}\n  .bonus-btn:disabled{opacity:.5; cursor:not-allowed;}\n  .bonus-btn:active:not(:disabled){transform:scale(0.97);}\n\n  .optional-btn{background:#22c3a6; color:#000; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;}\n  .optional-btn:active:not(:disabled){transform:scale(0.95);}\n  .optional-btn.done{background:#2a3542; color:var(--muted); cursor:default;}\n  .optional-btn:disabled{opacity:.6;}\n</style>\n</head>\n<body>\n\n<div class=\"wrap\">\n  <div class=\"topline\">\n    <div class=\"brand\">\n      <div class=\"brand-icon\">📨</div>\n      <div><div class=\"brand-name\">TaskHub</div><div class=\"brand-sub\">Mini App</div></div>\n    </div>\n    <div class=\"userchip\"><div class=\"av\"></div><span id=\"userIdChip\">Guest</span></div>\n  </div>\n\n  <div class=\"info-badge\">🕓 Withdrawal requests are reviewed and paid out manually — they are not instant. Minimum withdrawal is 10,000 pts.</div>\n\n  <!-- HOME PAGE -->\n  <div id=\"home-page\" class=\"page active\">\n    <div class=\"hero\">\n      <h1>Earn More</h1>\n      <p>Tap a card to start earning. Nothing here is required.</p>\n    </div>\n\n    <div class=\"balance-row\">\n      <div class=\"balance-num\" id=\"balanceNum\">0</div>\n      <div class=\"balance-unit\">pts</div>\n      <div class=\"balance-side\">Min withdrawal: 10,000 pts</div>\n    </div>\n\n    <div class=\"grid2\">\n      <div class=\"earn-card ad\">\n        <div class=\"eyebrow\">Rewarded Ad</div>\n        <div class=\"amount\">+10 pts</div>\n        <div class=\"cap\" id=\"adDailyCap\">Daily 0 / 300</div>\n        <div class=\"mini-progress\"><div id=\"adProgressFill\"></div></div>\n        <button class=\"earn-btn\" id=\"watchAdBtn\">▶ Watch Ad</button>\n      </div>\n      <div class=\"earn-card task\">\n        <div class=\"eyebrow\">Tasks</div>\n        <div class=\"amount\">+30 pts</div>\n        <div class=\"cap\" id=\"taskDailyCap\">Daily 0 / 300</div>\n        <div class=\"mini-progress\"><div id=\"taskProgressFill\"></div></div>\n        <button class=\"earn-btn\" id=\"goTasksBtn\">Go →</button>\n      </div>\n    </div>\n\n    <div class=\"disclaimer\">\n      <b>Optional, always.</b> Watching ads and completing tasks is 100% optional. You are never required to watch an ad or finish a task to use TaskHub.\n    </div>\n\n    <div class=\"section\">\n      <h2>Earning rules</h2>\n      <div class=\"rules\">\n        <div class=\"col\">\n          <h3>REWARDED AD</h3>\n          <div class=\"row\"><span>Cooldown</span><span>30 sec</span></div>\n          <div class=\"row\"><span>Max / day</span><span>300 pts</span></div>\n        </div>\n        <div class=\"col\">\n          <h3>OFFER TASK</h3>\n          <div class=\"row\"><span>Cooldown</span><span>30 sec</span></div>\n          <div class=\"row\"><span>Max / day</span><span>300 pts</span></div>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- TASKS PAGE -->\n  <div id=\"tasks-page\" class=\"page\">\n    <div class=\"hero\">\n      <h1>Tasks</h1>\n      <p>Optional actions. Complete any of these when you feel like it.</p>\n    </div>\n\n    <div class=\"section\">\n      <h2>🎯 Quick Tasks</h2>\n      <div style=\"padding:10px 0;\">\n        <div style=\"display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);\">\n          <div>\n            <div style=\"font-size:13.5px; font-weight:600;\">💻 Visit Website</div>\n            <div style=\"font-size:11px; color:var(--muted); margin-top:2px;\">Join our community</div>\n          </div>\n          <button class=\"optional-btn\" id=\"task-visit\" onclick=\"window.open('https://bitcotasks.com/promote/72701'); return false;\">+50 pts</button>\n        </div>\n        <div style=\"display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);\">\n          <div>\n            <div style=\"font-size:13.5px; font-weight:600;\">📱 Share on Telegram</div>\n            <div style=\"font-size:11px; color:var(--muted); margin-top:2px;\">Share to 5 chats</div>\n          </div>\n          <button class=\"optional-btn\" id=\"task-share\" onclick=\"window.open('https://s.hifamiapp.com/1/laIw8R0Uh'); return false;\">+40 pts</button>\n        </div>\n        <div style=\"display:flex; justify-content:space-between; align-items:center; padding:10px 0;\">\n          <div>\n            <div style=\"font-size:13.5px; font-weight:600;\">📺 Join Channel</div>\n            <div style=\"font-size:11px; color:var(--muted); margin-top:2px;\">Follow our updates</div>\n          </div>\n          <button class=\"optional-btn\" id=\"task-join\" onclick=\"window.open('https://t.me/freeupdateas'); return false;\">+30 pts</button>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- REFERRAL PAGE -->\n  <div id=\"refer-page\" class=\"page\">\n    <div class=\"hero\">\n      <h1>Refer & Lead</h1>\n      <p>Share your link — earn 100 pts per friend!</p>\n    </div>\n\n    <div class=\"section\">\n      <div class=\"refer-box\">\n        <div class=\"refer-icon\">🤝</div>\n        <div class=\"refer-copy\">\n          <div class=\"t\">+100 pts per referral</div>\n          <div class=\"s\">After they watch 2 ads (auto-credited)</div>\n        </div>\n      </div>\n      <div class=\"refer-link-row\">\n        <input id=\"referLinkInput\" readonly value=\"\" />\n        <button id=\"copyReferBtn\">Copy</button>\n      </div>\n    </div>\n\n    <div class=\"section\">\n      <h2>📊 Your Stats</h2>\n      <div style=\"display:flex; justify-content:space-between; align-items:center; padding:12px 0;\">\n        <div><div style=\"font-size:13.5px; font-weight:600;\" id=\"referCount\">0 friends joined</div><div style=\"font-size:11.5px; color:var(--muted); margin-top:2px;\">Active referrals</div></div>\n        <div style=\"color:var(--refer); font-weight:700;\" id=\"referEarned\">+0 pts</div>\n      </div>\n    </div>\n  </div>\n\n  <!-- WALLET PAGE -->\n  <div id=\"wallet-page\" class=\"page\">\n    <div class=\"hero\">\n      <h1>Wallet</h1>\n      <p>Your points balance and withdrawal requests.</p>\n    </div>\n\n    <div class=\"wallet-hero\">\n      <div class=\"lbl\">Total balance</div>\n      <div class=\"num\"><span id=\"walletBalance\">0</span> pts</div>\n      <div class=\"conv\">Minimum withdrawal: 10,000 pts</div>\n    </div>\n\n    <div class=\"section\">\n      <h2>💳 Withdraw</h2>\n      <div class=\"form-field\">\n        <label>Payment method</label>\n        <select id=\"withdrawMethod\">\n          <option>Litecoin</option>\n          <option>Binance Pay</option>\n          <option>FaucetPay</option>\n          <option>USDT</option>\n        </select>\n      </div>\n      <div class=\"form-field\">\n        <label>Wallet address</label>\n        <input id=\"withdrawAddress\" placeholder=\"Paste your address\" />\n      </div>\n      <div class=\"form-field\">\n        <label>Amount (pts)</label>\n        <input id=\"withdrawAmount\" type=\"number\" min=\"10000\" step=\"1\" placeholder=\"Min 10,000\" />\n      </div>\n      <button class=\"withdraw-btn\" id=\"withdrawBtn\">Request Withdrawal</button>\n    </div>\n  </div>\n</div>\n\n<div class=\"toast\" id=\"toast\"></div>\n\n<div class=\"nav\">\n  <button class=\"nav-btn active\" onclick=\"showPage('home')\"><span class=\"ic\">🏠</span>Home</button>\n  <button class=\"nav-btn\" onclick=\"showPage('tasks')\"><span class=\"ic\">✅</span>Tasks</button>\n  <button class=\"nav-btn\" onclick=\"showPage('refer')\"><span class=\"ic\">🤝</span>Refer</button>\n  <button class=\"nav-btn\" onclick=\"showPage('wallet')\"><span class=\"ic\">💰</span>Wallet</button>\n</div>\n\n<script>\nconst SUPABASE_URL = 'https://fyuiyycuthfaauqoelal.supabase.co';\nconst SUPABASE_KEY = 'sb_publishable_o0FKts4iFCJ2mrtZWMQPug_nnJ1ACDx';\n\nconst { createClient } = window.supabase;\nconst supabase = createClient(SUPABASE_URL, SUPABASE_KEY);\n\nlet userId = null;\nlet userTgId = null;\nlet balance = 0;\nlet adsWatchedToday = 0;\nlet referCount = 0;\nlet referEarned = 0;\nlet lastAdTime = 0;\n\nconst tg = window.Telegram?.WebApp;\ntry { tg?.expand?.(); } catch(e) {}\n\nfunction toast(msg) {\n  const el = document.getElementById('toast');\n  el.innerText = msg;\n  el.classList.add('show');\n  setTimeout(() => el.classList.remove('show'), 2500);\n}\n\nfunction showPage(name) {\n  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));\n  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));\n  document.getElementById(`${name}-page`).classList.add('active');\n  event.target.closest('.nav-btn')?.classList.add('active');\n}\n\nasync function initUser() {\n  const tgUserId = tg?.initDataUnsafe?.user?.id || 'guest_' + Math.random().toString(36).substr(2, 9);\n  userTgId = tgUserId;\n  \n  console.log('👤 User TG ID:', tgUserId);\n  \n  const { data: user } = await supabase.from('users').select('*').eq('telegram_id', tgUserId).single();\n  \n  if (user) {\n    userId = user.id;\n    balance = user.balance || 0;\n    adsWatchedToday = user.ads_watched_today || 0;\n    referCount = user.refer_count || 0;\n    referEarned = user.refer_earned || 0;\n    console.log('✅ User found');\n  } else {\n    const { data: newUser } = await supabase.from('users').insert([{\n      telegram_id: tgUserId,\n      balance: 0,\n      ads_watched_today: 0,\n      refer_count: 0,\n      refer_earned: 0,\n      joined_at: new Date().toISOString()\n    }]).select().single();\n    \n    if (newUser) {\n      userId = newUser.id;\n      console.log('✅ New user created');\n    }\n  }\n  \n  document.getElementById('userIdChip').innerText = 'id ' + tgUserId;\n  document.getElementById('referLinkInput').value = `https://t.me/Watchvideosebot?start=ref_${tgUserId}`;\n  render();\n}\n\nfunction render() {\n  document.getElementById('balanceNum').innerText = balance;\n  document.getElementById('walletBalance').innerText = balance;\n  document.getElementById('referCount').innerText = `${referCount} friends joined`;\n  document.getElementById('referEarned').innerText = `+${referEarned} pts`;\n}\n\ndocument.getElementById('watchAdBtn').onclick = async () => {\n  toast('⏳ Loading ad...');\n  \n  try {\n    if (typeof Adsgram === 'undefined') {\n      toast('⚠️ Adsgram not loaded');\n      return;\n    }\n    \n    const ad = Adsgram.init({ blockId: '37622' });\n    const result = await ad.show();\n    \n    if (result?.done) {\n      balance += 10;\n      adsWatchedToday++;\n      lastAdTime = Date.now();\n      \n      await supabase.from('users').update({\n        balance,\n        ads_watched_today: adsWatchedToday\n      }).eq('id', userId);\n      \n      await supabase.from('activity').insert([{\n        user_id: userId,\n        title: 'Watched ad',\n        pts: 10,\n        created_at: new Date().toISOString()\n      }]);\n      \n      toast('✅ +10 pts!');\n      render();\n    } else {\n      toast('❌ Ad skipped');\n    }\n  } catch (e) {\n    console.error('Ad error:', e);\n    toast('⚠️ Error: ' + e.message);\n  }\n};\n\ndocument.getElementById('goTasksBtn').onclick = () => showPage('tasks');\n\ndocument.getElementById('copyReferBtn').onclick = () => {\n  const input = document.getElementById('referLinkInput');\n  navigator.clipboard?.writeText(input.value).then(() => toast('📋 Copied!'));\n};\n\ndocument.getElementById('withdrawBtn').onclick = async () => {\n  const method = document.getElementById('withdrawMethod').value;\n  const address = document.getElementById('withdrawAddress').value.trim();\n  const amount = parseInt(document.getElementById('withdrawAmount').value, 10);\n\n  if (!address || !amount || amount < 10000 || amount > balance) {\n    toast('⚠️ Check your input');\n    return;\n  }\n\n  try {\n    balance -= amount;\n    \n    await supabase.from('users').update({ balance }).eq('id', userId);\n    \n    await supabase.from('withdrawals').insert([{\n      user_id: userId,\n      method,\n      address,\n      amount,\n      status: 'pending',\n      created_at: new Date().toISOString()\n    }]);\n    \n    toast('✅ Withdrawal request sent!');\n    document.getElementById('withdrawAddress').value = '';\n    document.getElementById('withdrawAmount').value = '';\n    render();\n  } catch (e) {\n    toast('⚠️ Error: ' + e.message);\n  }\n};\n\nwindow.onload = async () => {\n  console.log('🚀 App loaded');\n  await initUser();\n};\n</script>\n\n</body>\n</html>
+  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); background:#1a2230; border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .25s ease; z-index:999; box-shadow:0 10px 30px rgba(0,0,0,0.4); max-width:88%; text-align:center;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  #joinPopup{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center;
+    z-index:10000; flex-direction:column; gap:20px; padding:20px;
+  }
+  #joinPopup h2{color:#00e0ff; font-size:24px;}
+  #joinPopup button{padding:14px 20px; border:none; border-radius:12px; background:linear-gradient(90deg,var(--refer),#3a54c9); color:#fff; font-weight:bold; cursor:pointer; font-size:16px;}
+  #joinPopup button:active{transform:scale(0.96);}
+
+  .daily-bonus-section{background:linear-gradient(135deg, rgba(242,169,59,0.15), rgba(34,195,166,0.15)); border:1px solid var(--warn-line); border-radius:16px; padding:16px; margin-bottom:16px;}
+  .daily-bonus-section h3{color:#f2a93b; margin-bottom:12px; font-size:14px;}
+  .bonus-progress{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+  .bonus-stat{background:var(--panel); padding:10px; border-radius:10px; text-align:center;}
+  .bonus-stat .label{font-size:11px; color:var(--muted);}
+  .bonus-stat .value{font-size:18px; font-weight:700; color:#22c3a6; margin-top:4px;}
+  .bonus-progress-bar{width:100%; height:8px; background:#1b2a40; border-radius:20px; overflow:hidden; margin-bottom:10px;}
+  .bonus-progress-bar > div{height:100%; width:0%; background:linear-gradient(90deg, #f2a93b, #22c3a6); transition:width .3s;}
+  .bonus-btn{width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(90deg, #f2a93b, #22c3a6); color:#000; font-weight:700; cursor:pointer;}
+  .bonus-btn:disabled{opacity:.5; cursor:not-allowed; background:#8a96a3;}
+  .bonus-note{font-size:11px; color:var(--muted); margin-top:10px; line-height:1.4;}
+
+  .optional-task-item{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line);}
+  .optional-task-item:last-child{border-bottom:none;}
+  .optional-task-item .t{font-size:13.5px; font-weight:600;}
+  .optional-task-item .s{font-size:11px; color:var(--muted); margin-top:2px;}
+  .optional-task-item .reward{font-size:12px; color:#22c3a6; font-weight:700;}
+  .optional-btn{background:#22c3a6; color:#000; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;}
+  .optional-btn.done{background:#2a3542; color:var(--muted); cursor:default;}
+  .optional-btn:disabled{opacity:.6;}
+
+  .adsgram-section{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px;}
+  .adsgram-section h2{font-family:'Sora',sans-serif; font-size:14.5px; font-weight:700; margin-bottom:12px;}
+  .adsgram-cap{font-size:11.5px; color:var(--muted); margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topline">
+    <div class="brand">
+      <div class="brand-icon">📨</div>
+      <div><div class="brand-name">TaskHub</div><div class="brand-sub">Mini App</div></div>
+    </div>
+    <div class="userchip"><div class="av"></div><span id="userIdChip">Guest</span></div>
+  </div>
+
+  <div class="info-badge">🕓 Withdrawal requests are reviewed and paid out manually — they are not instant. Minimum withdrawal is 10,000 pts.</div>
+
+  <!-- ============ HOME PAGE ============ -->
+  <div id="home-page" class="page active">
+    <div class="hero">
+      <h1>Earn More</h1>
+      <p>Tap a card to start earning. Nothing here is required.</p>
+    </div>
+
+    <div class="balance-row">
+      <div class="balance-num" id="balanceNum">0</div>
+      <div class="balance-unit">pts</div>
+      <div class="balance-side">Min withdrawal: 10,000 pts</div>
+    </div>
+
+    <div class="grid2">
+      <div class="earn-card ad">
+        <div class="eyebrow">Rewarded Ad</div>
+        <div class="amount">+10 pts</div>
+        <div class="cap" id="adDailyCap">Daily 0 / 300</div>
+        <div class="mini-progress"><div id="adProgressFill"></div></div>
+        <button class="earn-btn" id="watchAdBtn">▶ Watch Ad</button>
+      </div>
+      <div class="earn-card task">
+        <div class="eyebrow">Tasks</div>
+        <div class="amount">+30 pts</div>
+        <div class="cap" id="taskDailyCap">Daily 0 / 300</div>
+        <div class="mini-progress"><div id="taskProgressFill"></div></div>
+        <button class="earn-btn" id="goTasksBtn">Go →</button>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <b>Optional, always.</b> Watching ads and completing tasks is 100% optional. You are never required to watch an ad or finish a task to use TaskHub, and no content or feature is locked behind an ad view.
+    </div>
+
+    <div class="section">
+      <h2>Earning rules</h2>
+      <div class="rules">
+        <div class="col">
+          <h3>REWARDED AD</h3>
+          <div class="row"><span>Cooldown</span><span>30 sec</span></div>
+          <div class="row"><span>Max / day</span><span>300 pts</span></div>
+        </div>
+        <div class="col">
+          <h3>OFFER TASK</h3>
+          <div class="row"><span>Cooldown</span><span>30 sec</span></div>
+          <div class="row"><span>Max / day</span><span>300 pts</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="live-note" id="liveNote">Unlimited earning opportunities · watch ads &amp; earn</div>
+  </div>
+
+  <!-- ============ TASKS PAGE ============ -->
+  <div id="tasks-page" class="page">
+    <div class="hero">
+      <h1>Tasks</h1>
+      <p>Optional actions. Complete any of these when you feel like it.</p>
+    </div>
+
+    <div class="daily-bonus-section">
+      <h3>🎁 Daily Bonus Challenge</h3>
+      <div class="bonus-progress">
+        <div class="bonus-stat">
+          <div class="label">Ads Watched</div>
+          <div class="value" id="adsWatchedCount">0/10</div>
+        </div>
+        <div class="bonus-stat">
+          <div class="label">Tasks Completed</div>
+          <div class="value" id="tasksCompletedCount">0/3</div>
+        </div>
+      </div>
+      <div class="bonus-progress-bar">
+        <div id="bonusProgressBar"></div>
+      </div>
+      <button class="bonus-btn" id="claimBonusBtn" disabled>Claim 100 pts Bonus</button>
+      <div class="bonus-note">
+        ⭐ Watch 10 ads + Complete 3 offer tasks = 100 bonus points!
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🎯 Quick Tasks</h2>
+      <div class="optional-task-item">
+        <div>
+          <div class="t">💻 Visit Website</div>
+          <div class="s">Join our community</div>
+        </div>
+        <div>
+          <button class="optional-btn" id="task-visit" onclick="completeOptionalTask('visit')">+50 pts</button>
+        </div>
+      </div>
+      <div class="optional-task-item">
+        <div>
+          <div class="t">📱 Share on Telegram</div>
+          <div class="s">Share to 5 chats</div>
+        </div>
+        <div>
+          <button class="optional-btn" id="task-share" onclick="completeOptionalTask('share')">+40 pts</button>
+        </div>
+      </div>
+      <div class="optional-task-item">
+        <div>
+          <div class="t">📺 Join Channel</div>
+          <div class="s">Follow our updates</div>
+        </div>
+        <div>
+          <button class="optional-btn" id="task-join" onclick="completeOptionalTask('join')">+30 pts</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="adsgram-section">
+      <h2>🎁 Offer Tasks - Complete Unlimited!</h2>
+      <div class="adsgram-cap">
+        <div style="margin-bottom:8px;">📊 Daily 0 / 300 pts | ⏱️ Cooldown: 30 sec</div>
+        <div>Complete as many offers as you want with 30-second cooldown between tasks!</div>
+      </div>
+      <adsgram-task id="adsgramBlock" data-block-id="task-37623"></adsgram-task>
+      <p style="font-size:11px; color:var(--muted); margin-top:10px;">📋 Block ID: task-37623</p>
+    </div>
+
+    <div class="disclaimer">
+      <b>No pressure.</b> Skipping every task on this page has zero effect on your account, balance, or access to any part of the app.
+    </div>
+  </div>
+
+  <!-- ============ REFERRAL PAGE ============ -->
+  <div id="refer-page" class="page">
+    <div class="hero">
+      <h1>Refer friends</h1>
+      <p>Share your link — earn points for every friend who joins.</p>
+    </div>
+
+    <div class="section">
+      <div class="refer-box">
+        <div class="refer-icon">🤝</div>
+        <div class="refer-copy">
+          <div class="t">+20 pts per referral</div>
+          <div class="s">Credited once your friend opens the app</div>
+        </div>
+      </div>
+      <div class="refer-link-row">
+        <input id="referLinkInput" readonly value="https://t.me/Watchvideosebot?start=ref_000000" />
+        <button id="copyReferBtn">Copy</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Your referrals</h2>
+      <div class="task-item">
+        <div><div class="t" id="referCount">0 friends joined</div><div class="s">Track your invites here</div></div>
+        <div class="amt" style="color:var(--refer); font-weight:700;" id="referEarned">+0 pts</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ WALLET PAGE ============ -->
+  <div id="wallet-page" class="page">
+    <div class="hero">
+      <h1>Wallet</h1>
+      <p>Your points balance and withdrawal requests.</p>
+    </div>
+
+    <div class="wallet-hero">
+      <div class="lbl">Total balance</div>
+      <div class="num"><span id="walletBalance">0</span> pts</div>
+      <div class="conv">Minimum withdrawal: 10,000 pts</div>
+    </div>
+
+    <div class="section">
+      <h2>💳 Withdraw</h2>
+      <div class="form-field">
+        <label>Payment method</label>
+        <select id="withdrawMethod">
+          <option>Litecoin</option>
+          <option>Binance Pay</option>
+          <option>FaucetPay</option>
+          <option>USDT</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Wallet / account address</label>
+        <input id="withdrawAddress" placeholder="Paste your address" />
+      </div>
+      <div class="form-field">
+        <label>Amount (pts)</label>
+        <input id="withdrawAmount" type="number" min="10000" step="1" placeholder="Minimum 10,000" />
+      </div>
+      <button class="withdraw-btn" id="withdrawBtn">Request Withdrawal</button>
+      <div class="withdraw-note">
+        Requests are sent for manual review. You'll be notified once it's processed — this isn't instant.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📝 Activity</h2>
+      <div id="txnList">
+        <div class="txn"><div><div class="t">No activity yet</div><div class="d">Watch an ad or complete a task to get started</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="joinPopup">
+  <h2>Join Our Channel</h2>
+  <button id="joinBtn">Join Channel +5 pts</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="nav">
+  <button class="nav-btn active" id="nav-home" onclick="showPage('home')"><span class="ic">🏠</span>Home</button>
+  <button class="nav-btn" id="nav-tasks" onclick="showPage('tasks')"><span class="ic">✅</span>Tasks</button>
+  <button class="nav-btn" id="nav-refer" onclick="showPage('refer')"><span class="ic">🤝</span>Refer</button>
+  <button class="nav-btn" id="nav-wallet" onclick="showPage('wallet')"><span class="ic">💰</span>Wallet</button>
+</div>
+
+<script>
+// ============ TELEGRAM & ADSGRAM ============
+const tg = window.Telegram?.WebApp;
+try{ tg?.expand?.(); }catch(e){}
+
+// ============ SUPABASE INITIALIZATION ============
+// 🔧 ADMIN: Replace with your actual Supabase credentials
+const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+
+const { createClient } = window.supabase;
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ============ CONFIGURATION ============
+const OPTIONAL_TASKS_CONFIG = {
+  visit: {
+    title: 'Visit Website',
+    description: 'Join our community',
+    reward: 50,
+    url: 'https://bitcotasks.com/promote/72701',
+    icon: '💻'
+  },
+  share: {
+    title: 'Share on Telegram',
+    description: 'Share to 5 chats',
+    reward: 40,
+    url: 'https://s.hifamiapp.com/1/laIw8R0Uh',
+    icon: '📱'
+  },
+  join: {
+    title: 'Join Channel',
+    description: 'Follow our updates',
+    reward: 30,
+    url: 'https://t.me/freeupdateas',
+    icon: '📺'
+  }
+};
+
+const DAILY_BONUS_CONFIG = {
+  adsWatchedRequired: 10,
+  tasksCompletedRequired: 3,
+  bonusReward: 100,
+  bonusMessage: '🎉 You received 100 bonus points!'
+};
+
+const WATCH_AD_BLOCK_ID = '37622';
+const ADSGRAM_TASK_BLOCK_ID = 'task-37623';
+const JOIN_CHANNEL_AD_BLOCK_ID = '37677';
+const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
+const ADMIN_CHAT_ID = '23674574';
+
+const AD_COOLDOWN_MS = 30 * 1000;
+const TASK_COOLDOWN_MS = 30 * 1000;
+const AD_MAX_PER_DAY = 300;
+const TASK_MAX_PER_DAY = 300;
+const AD_REWARD = 10;
+const MIN_WITHDRAWAL = 10000;
+
+// ============ STATE ============
+let userId = null;
+let balance = 0;
+let adDailyCount = 0;
+let adDailyDate = '';
+let taskDailyCount = 0;
+let taskDailyDate = '';
+let lastAdTime = 0;
+let lastTaskTime = 0;
+let adsWatchedToday = 0;
+let tasksCompletedToday = 0;
+let bonusClaimedToday = '';
+let completedOptionalTasks = {};
+let referCount = 0;
+let referEarned = 0;
+let activity = [];
+
+// ============ GET OR CREATE USER ============
+async function initUser() {
+  const tgUserId = tg?.initDataUnsafe?.user?.id || 'guest_' + Math.random().toString(36).substr(2, 9);
+  
+  const { data: existingUser, error: selectError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('telegram_id', tgUserId)
+    .single();
+
+  if (existingUser) {
+    userId = existingUser.id;
+    balance = existingUser.balance || 0;
+    adDailyCount = existingUser.ad_daily_count || 0;
+    adDailyDate = existingUser.ad_daily_date || '';
+    taskDailyCount = existingUser.task_daily_count || 0;
+    taskDailyDate = existingUser.task_daily_date || '';
+    lastAdTime = existingUser.last_ad_time || 0;
+    lastTaskTime = existingUser.last_task_time || 0;
+    adsWatchedToday = existingUser.ads_watched_today || 0;
+    tasksCompletedToday = existingUser.tasks_completed_today || 0;
+    bonusClaimedToday = existingUser.bonus_claimed_today || '';
+    completedOptionalTasks = existingUser.completed_optional_tasks || {};
+    referCount = existingUser.refer_count || 0;
+    referEarned = existingUser.refer_earned || 0;
+  } else {
+    // Create new user
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert([{
+        telegram_id: tgUserId,
+        balance: 0,
+        ad_daily_count: 0,
+        task_daily_count: 0,
+        ads_watched_today: 0,
+        tasks_completed_today: 0,
+        refer_count: 0,
+        refer_earned: 0,
+        completed_optional_tasks: {}
+      }])
+      .select()
+      .single();
+
+    if (newUser) {
+      userId = newUser.id;
+    }
+  }
+
+  // Load activity
+  await loadActivity();
+  
+  // Set user chip
+  document.getElementById('userIdChip').innerText = 'id ' + tgUserId;
+  
+  render();
+  renderActivity();
+}
+
+// ============ RESET DAILY COUNTS ============
+function todayStr(){ return new Date().toDateString(); }
+
+async function resetDailyIfNeeded() {
+  const today = todayStr();
+  
+  if (adDailyDate !== today) {
+    adDailyCount = 0;
+    adDailyDate = today;
+    adsWatchedToday = 0;
+    tasksCompletedToday = 0;
+    bonusClaimedToday = '';
+    await supabase.from('users').update({
+      ad_daily_count: 0,
+      ad_daily_date: today,
+      task_daily_count: 0,
+      task_daily_date: today,
+      ads_watched_today: 0,
+      tasks_completed_today: 0,
+      bonus_claimed_today: ''
+    }).eq('id', userId);
+  }
+}
+
+// ============ PERSIST TO SUPABASE ============
+async function persistUser() {
+  if (!userId) return;
+  
+  const { error } = await supabase
+    .from('users')
+    .update({
+      balance,
+      ad_daily_count: adDailyCount,
+      ad_daily_date: adDailyDate,
+      task_daily_count: taskDailyCount,
+      task_daily_date: taskDailyDate,
+      last_ad_time: lastAdTime,
+      last_task_time: lastTaskTime,
+      ads_watched_today: adsWatchedToday,
+      tasks_completed_today: tasksCompletedToday,
+      bonus_claimed_today: bonusClaimedToday,
+      completed_optional_tasks: completedOptionalTasks,
+      refer_count: referCount,
+      refer_earned: referEarned
+    })
+    .eq('id', userId);
+  
+  if (error) console.error('Persist error:', error);
+}
+
+// ============ ACTIVITY ============
+async function addActivity(title, pts) {
+  if (!userId) return;
+  
+  const { error } = await supabase
+    .from('activity')
+    .insert([{
+      user_id: userId,
+      title,
+      pts,
+      created_at: new Date().toISOString()
+    }]);
+  
+  if (error) console.error('Activity error:', error);
+  await loadActivity();
+  renderActivity();
+}
+
+async function loadActivity() {
+  if (!userId) return;
+  
+  const { data, error } = await supabase
+    .from('activity')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  
+  if (error) {
+    console.error('Load activity error:', error);
+    activity = [];
+  } else {
+    activity = (data || []).map(a => ({
+      title: a.title,
+      pts: a.pts,
+      when: new Date(a.created_at).toLocaleString()
+    }));
+  }
+}
+
+function renderActivity() {
+  const list = document.getElementById('txnList');
+  if (!activity.length) {
+    list.innerHTML = '<div class="txn"><div><div class="t">No activity yet</div><div class="d">Watch an ad or complete a task to get started</div></div></div>';
+    return;
+  }
+  list.innerHTML = activity.slice(0, 10).map(a => `<div class="txn"><div><div class="t">${a.title}</div><div class="d">${a.when}</div></div><div class="amt ${a.pts < 0 ? 'neg' : ''}">${a.pts > 0 ? '+' : ''}${a.pts} pts</div></div>`).join('');
+}
+
+// ============ RENDER ============
+function updateDailyBonus() {
+  const adsWatchedRequired = DAILY_BONUS_CONFIG.adsWatchedRequired;
+  const tasksCompletedRequired = DAILY_BONUS_CONFIG.tasksCompletedRequired;
+  
+  document.getElementById('adsWatchedCount').innerText = `${adsWatchedToday}/${adsWatchedRequired}`;
+  document.getElementById('tasksCompletedCount').innerText = `${tasksCompletedToday}/${tasksCompletedRequired}`;
+  
+  const progress = ((adsWatchedToday + tasksCompletedToday) / (adsWatchedRequired + tasksCompletedRequired)) * 100;
+  document.getElementById('bonusProgressBar').style.width = Math.min(100, progress) + '%';
+  
+  const canClaimBonus = adsWatchedToday >= adsWatchedRequired && tasksCompletedToday >= tasksCompletedRequired && bonusClaimedToday !== todayStr();
+  document.getElementById('claimBonusBtn').disabled = !canClaimBonus;
+}
+
+function render() {
+  document.getElementById('balanceNum').innerText = balance;
+  document.getElementById('walletBalance').innerText = balance;
+  document.getElementById('adDailyCap').innerText = `Daily ${adDailyCount} / ${AD_MAX_PER_DAY}`;
+  document.getElementById('adProgressFill').style.width = Math.min(100, (adDailyCount / AD_MAX_PER_DAY) * 100) + '%';
+  document.getElementById('taskDailyCap').innerText = `Daily ${taskDailyCount} / ${TASK_MAX_PER_DAY}`;
+  document.getElementById('taskProgressFill').style.width = Math.min(100, (taskDailyCount / TASK_MAX_PER_DAY) * 100) + '%';
+  document.getElementById('referCount').innerText = `${referCount} friends joined`;
+  document.getElementById('referEarned').innerText = `+${referEarned} pts`;
+  updateDailyBonus();
+  updateOptionalTaskButtons();
+  updateAdButton();
+  persistUser();
+}
+
+function updateAdButton() {
+  const btn = document.getElementById('watchAdBtn');
+  const now = Date.now();
+  const sinceLast = now - lastAdTime;
+  const capped = adDailyCount >= AD_MAX_PER_DAY;
+
+  if (capped) {
+    btn.disabled = true;
+    btn.innerText = 'Daily cap reached';
+  } else if (sinceLast < AD_COOLDOWN_MS) {
+    btn.disabled = true;
+    const secs = Math.ceil((AD_COOLDOWN_MS - sinceLast) / 1000);
+    btn.innerText = `Next ad in ${secs}s`;
+  } else {
+    btn.disabled = false;
+    btn.innerText = '▶ Watch Ad';
+  }
+}
+
+function updateOptionalTaskButtons() {
+  ['visit', 'share', 'join'].forEach(taskId => {
+    const btn = document.getElementById(`task-${taskId}`);
+    if (completedOptionalTasks[taskId]) {
+      btn.classList.add('done');
+      btn.innerText = '✅ Done';
+      btn.disabled = true;
+    }
+  });
+}
+
+// ============ TOAST ============
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.innerText = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ============ WATCH AD ============
+let rewardAd = null;
+let joinAd = null;
+
+window.onload = async () => {
+  await initUser();
+  await resetDailyIfNeeded();
+  
+  if (typeof Adsgram !== 'undefined') {
+    console.log('✅ Adsgram SDK loaded');
+    
+    rewardAd = Adsgram.init({ blockId: WATCH_AD_BLOCK_ID });
+    console.log('✅ Watch Ad initialized');
+    
+    joinAd = Adsgram.init({ blockId: JOIN_CHANNEL_AD_BLOCK_ID });
+    console.log('✅ Join Channel Ad initialized');
+    
+    joinAd.show().finally(() => {
+      console.log('✅ Join ad preloaded');
+      document.getElementById('joinPopup').style.display = 'flex';
+    });
+  }
+};
+
+document.getElementById('watchAdBtn').addEventListener('click', async () => {
+  if (!rewardAd) {
+    toast('⏳ Ad system loading...');
+    return;
+  }
+  
+  const btn = document.getElementById('watchAdBtn');
+  btn.disabled = true;
+  btn.innerText = '⏳ Loading Ad...';
+  
+  try {
+    const res = await rewardAd.show();
+    if (res?.done) {
+      balance += AD_REWARD;
+      adDailyCount += AD_REWARD;
+      lastAdTime = Date.now();
+      adsWatchedToday++;
+      await addActivity('Rewarded ad watched', AD_REWARD);
+      toast(`+${AD_REWARD} pts — thanks for watching!`);
+      updateDailyBonus();
+      render();
+    } else {
+      toast('⚠️ Ad skipped - no reward');
+    }
+  } catch (error) {
+    console.error('Ad error:', error);
+    toast('⚠️ Ad closed - no reward');
+  } finally {
+    updateAdButton();
+  }
+});
+
+// ============ OPTIONAL TASKS ============
+async function completeOptionalTask(taskId) {
+  if (completedOptionalTasks[taskId]) {
+    toast('Already completed');
+    return;
+  }
+  
+  const config = OPTIONAL_TASKS_CONFIG[taskId];
+  
+  window.open(config.url, '_blank');
+  
+  completedOptionalTasks[taskId] = true;
+  balance += config.reward;
+  tasksCompletedToday++;
+  await addActivity(`Task completed: ${config.title}`, config.reward);
+  toast(`+${config.reward} pts — ${config.title} completed!`);
+  updateDailyBonus();
+  render();
+}
+
+// ============ CLAIM DAILY BONUS ============
+document.getElementById('claimBonusBtn').addEventListener('click', async () => {
+  const bonusReward = DAILY_BONUS_CONFIG.bonusReward;
+  balance += bonusReward;
+  bonusClaimedToday = todayStr();
+  await addActivity('Daily bonus claimed', bonusReward);
+  toast(DAILY_BONUS_CONFIG.bonusMessage);
+  document.getElementById('claimBonusBtn').disabled = true;
+  render();
+});
+
+// ============ JOIN CHANNEL ============
+document.getElementById('joinBtn').onclick = async () => {
+  balance += 5;
+  await addActivity('Joined channel', 5);
+  document.getElementById("joinPopup").style.display = "none";
+  toast('✨ +5 pts for joining!');
+  window.open(OPTIONAL_TASKS_CONFIG.join.url, "_blank");
+  render();
+};
+
+// ============ REFERRAL ============
+document.getElementById('copyReferBtn').addEventListener('click', () => {
+  const input = document.getElementById('referLinkInput');
+  navigator.clipboard?.writeText(input.value).then(() => toast('📋 Referral link copied!'));
+});
+
+// ============ WITHDRAWAL ============
+async function sendWithdrawalToTelegram(details) {
+  const text = `💸 New withdrawal request\nUser: ${details.userId}\nMethod: ${details.method}\nAddress: ${details.address}\nAmount: ${details.amount} pts\nRequested: ${details.when}`;
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text })
+  });
+  if (!res.ok) throw new Error('Telegram forward failed');
+  return res.json();
+}
+
+document.getElementById('withdrawBtn').addEventListener('click', async () => {
+  const method = document.getElementById('withdrawMethod').value;
+  const address = document.getElementById('withdrawAddress').value.trim();
+  const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
+
+  if (!address) { toast('⚠️ Enter wallet address'); return; }
+  if (!amount || amount < MIN_WITHDRAWAL) { toast(`⚠️ Minimum ${MIN_WITHDRAWAL} pts`); return; }
+  if (amount > balance) { toast('⚠️ Not enough points'); return; }
+
+  const btn = document.getElementById('withdrawBtn');
+  btn.disabled = true;
+  btn.innerText = 'Sending request…';
+
+  const tgUserId = tg?.initDataUnsafe?.user?.id || 'unknown';
+  const details = {
+    userId: tgUserId,
+    method, address, amount,
+    when: new Date().toLocaleString()
+  };
+
+  try {
+    await sendWithdrawalToTelegram(details);
+    
+    // Save withdrawal to Supabase
+    const { error } = await supabase
+      .from('withdrawals')
+      .insert([{
+        user_id: userId,
+        method,
+        address,
+        amount,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      }]);
+    
+    if (error) throw error;
+    
+    balance -= amount;
+    await addActivity(`Withdrawal requested (${method})`, -amount);
+    toast('✅ Withdrawal sent for review!');
+    document.getElementById('withdrawAddress').value = '';
+    document.getElementById('withdrawAmount').value = '';
+    render();
+  } catch (e) {
+    toast('⚠️ Error sending request');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Request Withdrawal';
+  }
+});
+
+// ============ NAVIGATION ============
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`${name}-page`).classList.add('active');
+  document.getElementById(`nav-${name}`).classList.add('active');
+}
+
+// ============ AUTO UPDATE AD BUTTON ============
+setInterval(updateAdButton, 1000);
+</script>
+
+</body>
+</html>
