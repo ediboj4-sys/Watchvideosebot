@@ -169,17 +169,10 @@
   .optional-btn.done{background:#2a3542; color:var(--muted); cursor:default;}
   .optional-btn:disabled{opacity:.6;}
 
-  /* MANUAL OFFER TASKS */
-  .offer-tasks-section{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px;}
-  .offer-tasks-section h2{font-family:'Sora',sans-serif; font-size:14.5px; font-weight:700; margin-bottom:12px;}
-  .offer-task-card{background:linear-gradient(135deg, rgba(34,195,166,0.1), rgba(109,140,255,0.1)); border:1px solid var(--task); border-radius:12px; padding:12px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;}
-  .offer-task-info .title{font-size:13px; font-weight:700; color:#22c3a6; margin-bottom:4px;}
-  .offer-task-info .desc{font-size:11px; color:var(--muted);}
-  .offer-task-card .reward{font-size:14px; font-weight:700; color:#f2a93b;}
-  .offer-complete-btn{background:linear-gradient(90deg, #22c3a6, #00e0ff); color:#000; border:none; padding:10px 16px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer; white-space:nowrap;}
-  .offer-complete-btn:disabled{opacity:.5; cursor:not-allowed;}
-  .offer-complete-btn.done{background:#2a3542; color:var(--muted);}
-  .offer-task-cap{font-size:11px; color:var(--muted); margin-bottom:12px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px;}
+  /* ADSGRAM BLOCK ALWAYS VISIBLE */
+  .adsgram-section{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px;}
+  .adsgram-section h2{font-family:'Sora',sans-serif; font-size:14.5px; font-weight:700; margin-bottom:12px;}
+  .adsgram-cap{font-size:11.5px; color:var(--muted); margin-bottom:10px;}
 </style>
 </head>
 <body>
@@ -217,7 +210,7 @@
         <button class="earn-btn" id="watchAdBtn">▶ Watch Ad</button>
       </div>
       <div class="earn-card task">
-        <div class="eyebrow">Offer Tasks</div>
+        <div class="eyebrow">Tasks</div>
         <div class="amount">+30 pts</div>
         <div class="cap" id="taskDailyCap">Daily 0 / 300</div>
         <div class="mini-progress"><div id="taskProgressFill"></div></div>
@@ -271,9 +264,9 @@
       <div class="bonus-progress-bar">
         <div id="bonusProgressBar"></div>
       </div>
-      <button class="bonus-btn" id="claimBonusBtn" disabled>Claim 100 pts Bonus</button>
+      <button class="bonus-btn" id="claimBonusBtn" data-task-block="task-12345" onclick="completeTaskWithAd(this, 'claimBonusAction')" disabled>Claim 100 pts Bonus</button>
       <div class="bonus-note">
-        ⭐ Watch 10 ads + Complete 3 quick tasks = 100 bonus points!
+        ⭐ Watch 10 ads + Complete 3 offer tasks = 100 bonus points!
       </div>
     </div>
 
@@ -286,7 +279,7 @@
           <div class="s">Join our community</div>
         </div>
         <div>
-          <button class="optional-btn" id="task-visit" onclick="completeOptionalTask('visit')">+50 pts</button>
+          <button class="optional-btn" id="task-visit" data-task-id="visit" data-task-block="task-23656" onclick="completeTaskWithAd(this, 'optionalTask')">+50 pts</button>
         </div>
       </div>
       <div class="optional-task-item">
@@ -295,7 +288,7 @@
           <div class="s">Share to 5 chats</div>
         </div>
         <div>
-          <button class="optional-btn" id="task-share" onclick="completeOptionalTask('share')">+40 pts</button>
+          <button class="optional-btn" id="task-share" data-task-id="share" data-task-block="task-45734" onclick="completeTaskWithAd(this, 'optionalTask')">+40 pts</button>
         </div>
       </div>
       <div class="optional-task-item">
@@ -304,55 +297,21 @@
           <div class="s">Follow our updates</div>
         </div>
         <div>
-          <button class="optional-btn" id="task-join" onclick="completeOptionalTask('join')">+30 pts</button>
+          <button class="optional-btn" id="task-join" data-task-id="join" data-task-block="task-35645" onclick="completeTaskWithAd(this, 'optionalTask')">+30 pts</button>
         </div>
       </div>
     </div>
 
-    <!-- ============ MANUAL OFFER TASKS SECTION ============ -->
-    <div class="offer-tasks-section">
-      <h2>🎮 Complete Offers</h2>
-      <div class="offer-task-cap">
-        <strong>📊 Daily 0 / 300 pts</strong> | <strong>⏱️ Cooldown: 30 sec</strong>
+    <!-- ============ ADSGRAM TASK BLOCK - ALWAYS VISIBLE ============ -->
+    <div class="adsgram-section">
+      <h2>🎁 Offer Tasks - Complete Unlimited!</h2>
+      <div class="adsgram-cap">
+        <div style="margin-bottom:8px;">📊 Daily 0 / 300 pts | ⏱️ Cooldown: 30 sec</div>
+        <div>Complete as many offers as you want with 30-second cooldown between tasks!</div>
       </div>
-      
-      <!-- OFFER TASK 1 -->
-      <div class="offer-task-card">
-        <div class="offer-task-info">
-          <div class="title">🎮 Free Entry Win real USDT</div>
-          <div class="desc">Complete this task to earn</div>
-        </div>
-        <div style="text-align:center;">
-          <div class="reward">+30 pts</div>
-          <button class="offer-complete-btn" id="offer-1" onclick="completeOfferTask('offer-1', 30)">Complete</button>
-        </div>
-      </div>
-
-      <!-- OFFER TASK 2 -->
-      <div class="offer-task-card">
-        <div class="offer-task-info">
-          <div class="title">💰 Earn Daily Rewards</div>
-          <div class="desc">Click and complete the task</div>
-        </div>
-        <div style="text-align:center;">
-          <div class="reward">+30 pts</div>
-          <button class="offer-complete-btn" id="offer-2" onclick="completeOfferTask('offer-2', 30)">Complete</button>
-        </div>
-      </div>
-
-      <!-- OFFER TASK 3 -->
-      <div class="offer-task-card">
-        <div class="offer-task-info">
-          <div class="title">🎁 Special Bonus Offer</div>
-          <div class="desc">Limited time opportunity</div>
-        </div>
-        <div style="text-align:center;">
-          <div class="reward">+30 pts</div>
-          <button class="offer-complete-btn" id="offer-3" onclick="completeOfferTask('offer-3', 30)">Complete</button>
-        </div>
-      </div>
-
-      <p style="font-size:11px; color:var(--muted); margin-top:10px; text-align:center;">📋 Block ID: task-37623</p>
+      <!-- ✅ TASK BLOCK - Always visible, always available -->
+      <adsgram-task id="adsgramBlock" data-block-id="task-37623"></adsgram-task>
+      <p style="font-size:11px; color:var(--muted); margin-top:10px;">📋 Block ID: task-37623</p>
     </div>
 
     <div class="disclaimer">
@@ -376,7 +335,7 @@
         </div>
       </div>
       <div class="refer-link-row">
-        <input id="referLinkInput" readonly value="https://t.me/TaskHubBot?start=ref_000000" />
+        <input id="referLinkInput" readonly value="https://t.me/Watchvideosebot?start=ref_000000" />
         <button id="copyReferBtn">Copy</button>
       </div>
     </div>
@@ -463,64 +422,48 @@ const OPTIONAL_TASKS_CONFIG = {
     title: 'Visit Website',
     description: 'Join our community',
     reward: 50,
-    url: 'https://example.com',  // 🔧 ADMIN: Edit this link
-    icon: '💻'
+    url: 'https://bitcotasks.com/promote/72701',  // 🔧 ADMIN: Edit this link
+    icon: '💻',
+    taskBlockId: 'task-23656'  // 🔧 Task-block ID
   },
   share: {
     title: 'Share on Telegram',
     description: 'Share to 5 chats',
     reward: 40,
-    url: 'https://t.me/share/url?url=https://t.me/TaskHubBot',  // 🔧 ADMIN: Edit this link
-    icon: '📱'
+    url: 'https://s.hifamiapp.com/1/laIw8R0Uh',  // 🔧 ADMIN: Edit this link
+    icon: '📱',
+    taskBlockId: 'task-45734'  // 🔧 Task-block ID
   },
   join: {
     title: 'Join Channel',
     description: 'Follow our updates',
     reward: 30,
-    url: 'https://t.me/CashGyana',  // 🔧 ADMIN: Edit this link
-    icon: '📺'
+    url: 'https://t.me/freeupdateas',  // 🔧 ADMIN: Edit this link
+    icon: '📺',
+    taskBlockId: 'task-35645'  // 🔧 Task-block ID
   }
 };
-
-// ============ OFFER TASKS CONFIG ============
-// 🔧 ADMIN: Edit offer tasks details below
-const OFFER_TASKS_CONFIG = [
-  {
-    id: 'offer-1',
-    title: '🎮 Free Entry Win real USDT',
-    description: 'Complete this task to earn',
-    reward: 30
-  },
-  {
-    id: 'offer-2',
-    title: '💰 Earn Daily Rewards',
-    description: 'Click and complete the task',
-    reward: 30
-  },
-  {
-    id: 'offer-3',
-    title: '🎁 Special Bonus Offer',
-    description: 'Limited time opportunity',
-    reward: 30
-  }
-];
 
 const DAILY_BONUS_CONFIG = {
   adsWatchedRequired: 10,
   tasksCompletedRequired: 3,
   bonusReward: 100,
-  bonusMessage: '🎉 You received 100 bonus points!'
+  bonusMessage: '🎉 You received 100 bonus points!',
+  taskBlockId: 'task-12345'  // 🔧 Task-block ID
 };
 
-const WATCH_AD_BLOCK_ID = '29779';
-const JOIN_CHANNEL_AD_BLOCK_ID = '35248';
+const WATCH_AD_BLOCK_ID = '37622';
+const ADSGRAM_TASK_BLOCK_ID = 'task-37623';  // 🔧 ADMIN: Edit this block ID
+const JOIN_CHANNEL_AD_BLOCK_ID = '37677';
 
 const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
 const ADMIN_CHAT_ID = '23674574';
 
 // ============ COOLDOWN SETTINGS ============
-const AD_COOLDOWN_MS = 30 * 1000;
-const TASK_COOLDOWN_MS = 30 * 1000;
+// ✅ 30 seconds cooldown for both ads and tasks
+// ✅ 300 pts daily limit for both ads and tasks
+const AD_COOLDOWN_MS = 30 * 1000;          // 30 seconds
+const TASK_COOLDOWN_MS = 30 * 1000;        // 30 seconds
 const AD_MAX_PER_DAY = 300;
 const TASK_MAX_PER_DAY = 300;
 const AD_REWARD = 10;
@@ -538,7 +481,6 @@ let adsWatchedToday = Number(localStorage.getItem('th_adsWatchedToday') || '0');
 let tasksCompletedToday = Number(localStorage.getItem('th_tasksCompletedToday') || '0');
 let bonusClaimedToday = localStorage.getItem('th_bonusClaimedToday') || '';
 let completedOptionalTasks = JSON.parse(localStorage.getItem('th_completedOptionalTasks') || '{}');
-let completedOfferTasks = JSON.parse(localStorage.getItem('th_completedOfferTasks') || '{}');
 let referCount = Number(localStorage.getItem('th_referCount') || '0');
 let referEarned = Number(localStorage.getItem('th_referEarned') || '0');
 let activity = JSON.parse(localStorage.getItem('th_activity') || '[]');
@@ -560,6 +502,7 @@ if (taskDailyDate !== todayStr()) {
 // ============ ADSGRAM SDK INIT ============
 let rewardAd = null;
 let joinAd = null;
+let taskBlockAds = {};
 
 window.onload = () => {
   if (typeof Adsgram !== 'undefined') {
@@ -570,6 +513,19 @@ window.onload = () => {
     
     joinAd = Adsgram.init({ blockId: JOIN_CHANNEL_AD_BLOCK_ID });
     console.log('✅ Join Channel Ad initialized');
+    
+    // ✅ Initialize all task-block ads with Adsgram.init() (same as manual ads)
+    const taskBlockIds = [
+      OPTIONAL_TASKS_CONFIG.visit.taskBlockId,
+      OPTIONAL_TASKS_CONFIG.share.taskBlockId,
+      OPTIONAL_TASKS_CONFIG.join.taskBlockId,
+      DAILY_BONUS_CONFIG.taskBlockId
+    ];
+
+    taskBlockIds.forEach(blockId => {
+      taskBlockAds[blockId] = Adsgram.init({ blockId: blockId });
+      console.log(`✅ Task-block Ad initialized: ${blockId}`);
+    });
     
     joinAd.show().finally(() => {
       console.log('✅ Join ad preloaded');
@@ -593,7 +549,6 @@ function persist(){
   localStorage.setItem('th_tasksCompletedToday', tasksCompletedToday);
   localStorage.setItem('th_bonusClaimedToday', bonusClaimedToday);
   localStorage.setItem('th_completedOptionalTasks', JSON.stringify(completedOptionalTasks));
-  localStorage.setItem('th_completedOfferTasks', JSON.stringify(completedOfferTasks));
   localStorage.setItem('th_referCount', referCount);
   localStorage.setItem('th_referEarned', referEarned);
   localStorage.setItem('th_activity', JSON.stringify(activity.slice(0,20)));
@@ -639,7 +594,6 @@ function render(){
   document.getElementById('referEarned').innerText = `+${referEarned} pts`;
   updateDailyBonus();
   updateOptionalTaskButtons();
-  updateOfferTaskButtons();
   updateAdButton();
   persist();
 }
@@ -667,17 +621,6 @@ function updateOptionalTaskButtons(){
   ['visit', 'share', 'join'].forEach(taskId => {
     const btn = document.getElementById(`task-${taskId}`);
     if (completedOptionalTasks[taskId]){
-      btn.classList.add('done');
-      btn.innerText = '✅ Done';
-      btn.disabled = true;
-    }
-  });
-}
-
-function updateOfferTaskButtons(){
-  Object.keys(completedOfferTasks).forEach(taskId => {
-    const btn = document.getElementById(taskId);
-    if (btn && completedOfferTasks[taskId]){
       btn.classList.add('done');
       btn.innerText = '✅ Done';
       btn.disabled = true;
@@ -728,7 +671,52 @@ document.getElementById('watchAdBtn').addEventListener('click', async () => {
   }
 });
 
-// ============ OPTIONAL TASKS ============
+// ============ ✅ COMPLETE TASK WITH AD - Shows <adsgram-task> block ads ============
+async function completeTaskWithAd(btn, action) {
+  const taskBlockId = btn.getAttribute('data-task-block');
+  
+  if (!taskBlockId) {
+    toast('⚠️ Ad block not configured');
+    return;
+  }
+
+  // ✅ Get the task-block ad (using Adsgram.init() - same as manual ads)
+  const ad = taskBlockAds[taskBlockId];
+  if (!ad) {
+    toast('⏳ Ad system loading...');
+    return;
+  }
+
+  const originalText = btn.innerText;
+  btn.disabled = true;
+  btn.innerText = '⏳ Loading Ad...';
+
+  try {
+    // ✅ Show task-block ad using .show() method
+    const res = await ad.show();
+    if (res?.done) {
+      // ✅ AD WATCHED - Execute action
+      if (action === 'optionalTask') {
+        const taskId = btn.getAttribute('data-task-id');
+        completeOptionalTask(taskId);
+      } else if (action === 'claimBonusAction') {
+        claimBonusAction();
+      }
+    } else {
+      // ❌ AD SKIPPED - No action
+      toast('⚠️ Ad skipped - task not completed');
+      btn.disabled = false;
+      btn.innerText = originalText;
+    }
+  } catch (error) {
+    console.error('Task-block ad error:', error);
+    toast('⚠️ Ad closed - task not completed');
+    btn.disabled = false;
+    btn.innerText = originalText;
+  }
+}
+
+// ============ OPTIONAL TASKS - Only called AFTER ad is watched ============
 function completeOptionalTask(taskId){
   if (completedOptionalTasks[taskId]) {
     toast('Already completed');
@@ -736,8 +724,11 @@ function completeOptionalTask(taskId){
   }
   
   const config = OPTIONAL_TASKS_CONFIG[taskId];
+  
+  // ✅ OPEN LINK & GIVE REWARD AFTER AD IS WATCHED
   window.open(config.url, '_blank');
   
+  // Mark as completed
   completedOptionalTasks[taskId] = true;
   balance += config.reward;
   tasksCompletedToday++;
@@ -747,45 +738,8 @@ function completeOptionalTask(taskId){
   render();
 }
 
-// ============ OFFER TASKS (MANUAL) ============
-function completeOfferTask(taskId, reward){
-  const now = Date.now();
-  const sinceLast = now - lastTaskTime;
-  
-  // Check cooldown
-  if (sinceLast < TASK_COOLDOWN_MS){
-    const secs = Math.ceil((TASK_COOLDOWN_MS - sinceLast)/1000);
-    toast(`⏱️ Wait ${secs}s before next task`);
-    return;
-  }
-  
-  // Check daily limit
-  if (taskDailyCount >= TASK_MAX_PER_DAY){
-    toast('📊 Daily offer task limit reached (300 pts)');
-    return;
-  }
-  
-  // Check if already completed today
-  if (completedOfferTasks[taskId]){
-    toast('✅ Already completed today');
-    return;
-  }
-  
-  // Mark as completed
-  completedOfferTasks[taskId] = true;
-  balance += reward;
-  taskDailyCount += reward;
-  lastTaskTime = now;
-  tasksCompletedToday++;
-  
-  addActivity('Offer task completed', reward);
-  toast(`✅ Task completed! +${reward} pts`);
-  updateDailyBonus();
-  render();
-}
-
-// ============ CLAIM DAILY BONUS ============
-document.getElementById('claimBonusBtn').addEventListener('click', () => {
+// ============ CLAIM DAILY BONUS - Only called AFTER ad is watched ============
+function claimBonusAction() {
   const bonusReward = DAILY_BONUS_CONFIG.bonusReward;
   balance += bonusReward;
   bonusClaimedToday = todayStr();
@@ -793,7 +747,7 @@ document.getElementById('claimBonusBtn').addEventListener('click', () => {
   toast(DAILY_BONUS_CONFIG.bonusMessage);
   document.getElementById('claimBonusBtn').disabled = true;
   render();
-});
+}
 
 // ============ JOIN CHANNEL ============
 document.getElementById('joinBtn').onclick = () => {
