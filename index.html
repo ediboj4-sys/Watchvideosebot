@@ -149,10 +149,10 @@
   /* DAILY BONUS SECTION */
   .daily-bonus-section{background:linear-gradient(135deg, rgba(242,169,59,0.15), rgba(34,195,166,0.15)); border:1px solid var(--warn-line); border-radius:16px; padding:16px; margin-bottom:16px;}
   .daily-bonus-section h3{color:#f2a93b; margin-bottom:12px; font-size:14px;}
-  .bonus-progress{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+  .bonus-progress{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:12px;}
   .bonus-stat{background:var(--panel); padding:10px; border-radius:10px; text-align:center;}
-  .bonus-stat .label{font-size:11px; color:var(--muted);}
-  .bonus-stat .value{font-size:18px; font-weight:700; color:#22c3a6; margin-top:4px;}
+  .bonus-stat .label{font-size:10px; color:var(--muted);}
+  .bonus-stat .value{font-size:16px; font-weight:700; color:#22c3a6; margin-top:4px;}
   .bonus-progress-bar{width:100%; height:8px; background:#1b2a40; border-radius:20px; overflow:hidden; margin-bottom:10px;}
   .bonus-progress-bar > div{height:100%; width:0%; background:linear-gradient(90deg, #f2a93b, #22c3a6); transition:width .3s;}
   .bonus-btn{width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(90deg, #f2a93b, #22c3a6); color:#000; font-weight:700; cursor:pointer;}
@@ -253,33 +253,41 @@
       <h3>🎁 Daily Bonus Challenge</h3>
       <div class="bonus-progress">
         <div class="bonus-stat">
+          <div class="label">Offer Tasks</div>
+          <div class="value" id="offerTasksCount">0/1</div>
+        </div>
+        <div class="bonus-stat">
           <div class="label">Ads Watched</div>
           <div class="value" id="adsWatchedCount">0/10</div>
         </div>
         <div class="bonus-stat">
-          <div class="label">Tasks Completed</div>
-          <div class="value" id="tasksCompletedCount">0/3</div>
+          <div class="label">Manual Tasks</div>
+          <div class="value" id="manualTasksCount">0/4</div>
+        </div>
+        <div class="bonus-stat">
+          <div class="label">Progress</div>
+          <div class="value" id="bonusProgress">0/3</div>
         </div>
       </div>
       <div class="bonus-progress-bar">
         <div id="bonusProgressBar"></div>
       </div>
-      <button class="bonus-btn" id="claimBonusBtn" data-task-block="task-12345" onclick="completeTaskWithAd(this, 'claimBonusAction')" disabled>Claim 100 pts Bonus</button>
+      <button class="bonus-btn" id="claimBonusBtn" disabled>Claim 100 pts Bonus</button>
       <div class="bonus-note">
-        ⭐ Watch 10 ads + Complete 3 offer tasks = 100 bonus points!
+        ⭐ Complete 1 offer task + Watch 10 ads + Complete all 4 manual tasks = 100 bonus points!
       </div>
     </div>
 
     <!-- ============ OPTIONAL TASKS SECTION ============ -->
     <div class="section">
-      <h2>🎯 Quick Tasks</h2>
+      <h2>🎯 Quick Tasks (Manual - 4 Total)</h2>
       <div class="optional-task-item">
         <div>
           <div class="t">💻 Visit Website</div>
           <div class="s">Join our community</div>
         </div>
         <div>
-          <button class="optional-btn" id="task-visit" data-task-id="visit" data-task-block="task-23656" onclick="completeTaskWithAd(this, 'optionalTask')">+50 pts</button>
+          <button class="optional-btn" id="task-visit" onclick="completeOptionalTask('visit')">+50 pts</button>
         </div>
       </div>
       <div class="optional-task-item">
@@ -288,7 +296,7 @@
           <div class="s">Share to 5 chats</div>
         </div>
         <div>
-          <button class="optional-btn" id="task-share" data-task-id="share" data-task-block="task-45734" onclick="completeTaskWithAd(this, 'optionalTask')">+40 pts</button>
+          <button class="optional-btn" id="task-share" onclick="completeOptionalTask('share')">+40 pts</button>
         </div>
       </div>
       <div class="optional-task-item">
@@ -297,7 +305,16 @@
           <div class="s">Follow our updates</div>
         </div>
         <div>
-          <button class="optional-btn" id="task-join" data-task-id="join" data-task-block="task-35645" onclick="completeTaskWithAd(this, 'optionalTask')">+30 pts</button>
+          <button class="optional-btn" id="task-join" onclick="completeOptionalTask('join')">+30 pts</button>
+        </div>
+      </div>
+      <div class="optional-task-item">
+        <div>
+          <div class="t">🤖 Join Bot</div>
+          <div class="s">Get started with our bot</div>
+        </div>
+        <div>
+          <button class="optional-btn" id="task-bot" onclick="completeOptionalTask('bot')">+25 pts</button>
         </div>
       </div>
     </div>
@@ -422,34 +439,38 @@ const OPTIONAL_TASKS_CONFIG = {
     title: 'Visit Website',
     description: 'Join our community',
     reward: 50,
-    url: 'https://bitcotasks.com/promote/72701',  // 🔧 ADMIN: Edit this link
-    icon: '💻',
-    taskBlockId: 'task-23656'  // 🔧 Task-block ID
+    url: 'https://t.me/gram_piarbot?start=6910486529',  // 🔧 ADMIN: Edit this link
+    icon: '💻'
   },
   share: {
     title: 'Share on Telegram',
     description: 'Share to 5 chats',
     reward: 40,
-    url: 'https://s.hifamiapp.com/1/laIw8R0Uh',  // 🔧 ADMIN: Edit this link
-    icon: '📱',
-    taskBlockId: 'task-45734'  // 🔧 Task-block ID
+    url: 'https://t.me/FoxiGrowbot?start=ref_6910486529',  // 🔧 ADMIN: Edit this link
+    icon: '📱'
   },
   join: {
     title: 'Join Channel',
     description: 'Follow our updates',
     reward: 30,
     url: 'https://t.me/freeupdateas',  // 🔧 ADMIN: Edit this link
-    icon: '📺',
-    taskBlockId: 'task-35645'  // 🔧 Task-block ID
+    icon: '📺'
+  },
+  bot: {
+    title: 'Join Bot',
+    description: 'Get started with our bot',
+    reward: 25,
+    url: 'https://t.me/YOUR_BOT_USERNAME',  // 🔧 ADMIN: Edit this link - Replace YOUR_BOT_USERNAME with your actual bot username
+    icon: '🤖'
   }
 };
 
 const DAILY_BONUS_CONFIG = {
+  offerTasksRequired: 1,
   adsWatchedRequired: 10,
-  tasksCompletedRequired: 3,
+  manualTasksRequired: 4,
   bonusReward: 100,
-  bonusMessage: '🎉 You received 100 bonus points!',
-  taskBlockId: 'task-12345'  // 🔧 Task-block ID
+  bonusMessage: '🎉 You received 100 bonus points!'
 };
 
 const WATCH_AD_BLOCK_ID = '37622';
@@ -478,7 +499,7 @@ let taskDailyDate = localStorage.getItem('th_taskDailyDate') || '';
 let lastAdTime = Number(localStorage.getItem('th_lastAdTime') || '0');
 let lastTaskTime = Number(localStorage.getItem('th_lastTaskTime') || '0');
 let adsWatchedToday = Number(localStorage.getItem('th_adsWatchedToday') || '0');
-let tasksCompletedToday = Number(localStorage.getItem('th_tasksCompletedToday') || '0');
+let offerTasksCompletedToday = Number(localStorage.getItem('th_offerTasksCompletedToday') || '0');
 let bonusClaimedToday = localStorage.getItem('th_bonusClaimedToday') || '';
 let completedOptionalTasks = JSON.parse(localStorage.getItem('th_completedOptionalTasks') || '{}');
 let referCount = Number(localStorage.getItem('th_referCount') || '0');
@@ -490,7 +511,7 @@ if (adDailyDate !== todayStr()) {
   adDailyCount = 0; 
   adDailyDate = todayStr();
   adsWatchedToday = 0;
-  tasksCompletedToday = 0;
+  offerTasksCompletedToday = 0;
   bonusClaimedToday = '';
 }
 
@@ -502,7 +523,6 @@ if (taskDailyDate !== todayStr()) {
 // ============ ADSGRAM SDK INIT ============
 let rewardAd = null;
 let joinAd = null;
-let taskBlockAds = {};
 
 window.onload = () => {
   if (typeof Adsgram !== 'undefined') {
@@ -513,19 +533,6 @@ window.onload = () => {
     
     joinAd = Adsgram.init({ blockId: JOIN_CHANNEL_AD_BLOCK_ID });
     console.log('✅ Join Channel Ad initialized');
-    
-    // ✅ Initialize all task-block ads with Adsgram.init() (same as manual ads)
-    const taskBlockIds = [
-      OPTIONAL_TASKS_CONFIG.visit.taskBlockId,
-      OPTIONAL_TASKS_CONFIG.share.taskBlockId,
-      OPTIONAL_TASKS_CONFIG.join.taskBlockId,
-      DAILY_BONUS_CONFIG.taskBlockId
-    ];
-
-    taskBlockIds.forEach(blockId => {
-      taskBlockAds[blockId] = Adsgram.init({ blockId: blockId });
-      console.log(`✅ Task-block Ad initialized: ${blockId}`);
-    });
     
     joinAd.show().finally(() => {
       console.log('✅ Join ad preloaded');
@@ -546,7 +553,7 @@ function persist(){
   localStorage.setItem('th_lastAdTime', lastAdTime);
   localStorage.setItem('th_lastTaskTime', lastTaskTime);
   localStorage.setItem('th_adsWatchedToday', adsWatchedToday);
-  localStorage.setItem('th_tasksCompletedToday', tasksCompletedToday);
+  localStorage.setItem('th_offerTasksCompletedToday', offerTasksCompletedToday);
   localStorage.setItem('th_bonusClaimedToday', bonusClaimedToday);
   localStorage.setItem('th_completedOptionalTasks', JSON.stringify(completedOptionalTasks));
   localStorage.setItem('th_referCount', referCount);
@@ -570,16 +577,27 @@ function renderActivity(){
 }
 
 function updateDailyBonus(){
+  const offerTasksRequired = DAILY_BONUS_CONFIG.offerTasksRequired;
   const adsWatchedRequired = DAILY_BONUS_CONFIG.adsWatchedRequired;
-  const tasksCompletedRequired = DAILY_BONUS_CONFIG.tasksCompletedRequired;
+  const manualTasksRequired = DAILY_BONUS_CONFIG.manualTasksRequired;
   
+  document.getElementById('offerTasksCount').innerText = `${offerTasksCompletedToday}/${offerTasksRequired}`;
   document.getElementById('adsWatchedCount').innerText = `${adsWatchedToday}/${adsWatchedRequired}`;
-  document.getElementById('tasksCompletedCount').innerText = `${tasksCompletedToday}/${tasksCompletedRequired}`;
+  document.getElementById('manualTasksCount').innerText = `${Object.values(completedOptionalTasks).filter(Boolean).length}/${manualTasksRequired}`;
   
-  const progress = ((adsWatchedToday + tasksCompletedToday) / (adsWatchedRequired + tasksCompletedRequired)) * 100;
+  const completedCount = (offerTasksCompletedToday >= offerTasksRequired ? 1 : 0) + 
+                         (adsWatchedToday >= adsWatchedRequired ? 1 : 0) + 
+                         (Object.values(completedOptionalTasks).filter(Boolean).length >= manualTasksRequired ? 1 : 0);
+  
+  document.getElementById('bonusProgress').innerText = `${completedCount}/3`;
+  
+  const progress = (completedCount / 3) * 100;
   document.getElementById('bonusProgressBar').style.width = Math.min(100, progress) + '%';
   
-  const canClaimBonus = adsWatchedToday >= adsWatchedRequired && tasksCompletedToday >= tasksCompletedRequired && bonusClaimedToday !== todayStr();
+  const canClaimBonus = offerTasksCompletedToday >= offerTasksRequired && 
+                        adsWatchedToday >= adsWatchedRequired && 
+                        Object.values(completedOptionalTasks).filter(Boolean).length >= manualTasksRequired && 
+                        bonusClaimedToday !== todayStr();
   document.getElementById('claimBonusBtn').disabled = !canClaimBonus;
 }
 
@@ -618,7 +636,7 @@ function updateAdButton(){
 }
 
 function updateOptionalTaskButtons(){
-  ['visit', 'share', 'join'].forEach(taskId => {
+  ['visit', 'share', 'join', 'bot'].forEach(taskId => {
     const btn = document.getElementById(`task-${taskId}`);
     if (completedOptionalTasks[taskId]){
       btn.classList.add('done');
@@ -671,52 +689,7 @@ document.getElementById('watchAdBtn').addEventListener('click', async () => {
   }
 });
 
-// ============ ✅ COMPLETE TASK WITH AD - Shows <adsgram-task> block ads ============
-async function completeTaskWithAd(btn, action) {
-  const taskBlockId = btn.getAttribute('data-task-block');
-  
-  if (!taskBlockId) {
-    toast('⚠️ Ad block not configured');
-    return;
-  }
-
-  // ✅ Get the task-block ad (using Adsgram.init() - same as manual ads)
-  const ad = taskBlockAds[taskBlockId];
-  if (!ad) {
-    toast('⏳ Ad system loading...');
-    return;
-  }
-
-  const originalText = btn.innerText;
-  btn.disabled = true;
-  btn.innerText = '⏳ Loading Ad...';
-
-  try {
-    // ✅ Show task-block ad using .show() method
-    const res = await ad.show();
-    if (res?.done) {
-      // ✅ AD WATCHED - Execute action
-      if (action === 'optionalTask') {
-        const taskId = btn.getAttribute('data-task-id');
-        completeOptionalTask(taskId);
-      } else if (action === 'claimBonusAction') {
-        claimBonusAction();
-      }
-    } else {
-      // ❌ AD SKIPPED - No action
-      toast('⚠️ Ad skipped - task not completed');
-      btn.disabled = false;
-      btn.innerText = originalText;
-    }
-  } catch (error) {
-    console.error('Task-block ad error:', error);
-    toast('⚠️ Ad closed - task not completed');
-    btn.disabled = false;
-    btn.innerText = originalText;
-  }
-}
-
-// ============ OPTIONAL TASKS - Only called AFTER ad is watched ============
+// ============ OPTIONAL TASKS ============
 function completeOptionalTask(taskId){
   if (completedOptionalTasks[taskId]) {
     toast('Already completed');
@@ -725,21 +698,20 @@ function completeOptionalTask(taskId){
   
   const config = OPTIONAL_TASKS_CONFIG[taskId];
   
-  // ✅ OPEN LINK & GIVE REWARD AFTER AD IS WATCHED
+  // Open link
   window.open(config.url, '_blank');
   
   // Mark as completed
   completedOptionalTasks[taskId] = true;
   balance += config.reward;
-  tasksCompletedToday++;
   addActivity(`Task completed: ${config.title}`, config.reward);
   toast(`+${config.reward} pts — ${config.title} completed!`);
   updateDailyBonus();
   render();
 }
 
-// ============ CLAIM DAILY BONUS - Only called AFTER ad is watched ============
-function claimBonusAction() {
+// ============ CLAIM DAILY BONUS ============
+document.getElementById('claimBonusBtn').addEventListener('click', () => {
   const bonusReward = DAILY_BONUS_CONFIG.bonusReward;
   balance += bonusReward;
   bonusClaimedToday = todayStr();
@@ -747,7 +719,7 @@ function claimBonusAction() {
   toast(DAILY_BONUS_CONFIG.bonusMessage);
   document.getElementById('claimBonusBtn').disabled = true;
   render();
-}
+});
 
 // ============ JOIN CHANNEL ============
 document.getElementById('joinBtn').onclick = () => {
@@ -757,6 +729,17 @@ document.getElementById('joinBtn').onclick = () => {
   toast('✨ +5 pts for joining!');
   window.open(OPTIONAL_TASKS_CONFIG.join.url, "_blank");
   render();
+};
+
+// ============ TRACK OFFER TASK COMPLETION (via Adsgram) ============
+// This tracks when users complete offer tasks from the Adsgram block
+// You may need to integrate this with your Adsgram callback system
+window.onOfferTaskCompleted = function(){
+  if (offerTasksCompletedToday < DAILY_BONUS_CONFIG.offerTasksRequired) {
+    offerTasksCompletedToday++;
+    updateDailyBonus();
+    render();
+  }
 };
 
 // ============ REFERRAL ============
