@@ -7,6 +7,8 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <!-- ✅ ADSGRAM SDK - Required for all ad features -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<!-- Supabase JS (UMD) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
@@ -163,7 +165,7 @@
   .optional-task-item{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line);}
   .optional-task-item:last-child{border-bottom:none;}
   .optional-task-item .t{font-size:13.5px; font-weight:600;}
-  .optional-task-item .s{font-size:11px; color:var(--muted); margin-top:2px;}
+  .optional-task-item .s{font-size:11.5px; color:var(--muted); margin-top:2px;}
   .optional-task-item .reward{font-size:12px; color:#22c3a6; font-weight:700;}
   .optional-btn{background:#22c3a6; color:#000; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;}
   .optional-btn.done{background:#2a3542; color:var(--muted); cursor:default;}
@@ -254,7 +256,7 @@
       <div class="bonus-progress">
         <div class="bonus-stat">
           <div class="label">Offer Tasks</div>
-          <div class="value" id="offerTasksCount">0/1</div>
+          <div class="value" id="offerTasksCount">0/3</div>
         </div>
         <div class="bonus-stat">
           <div class="label">Ads Watched</div>
@@ -274,7 +276,7 @@
       </div>
       <button class="bonus-btn" id="claimBonusBtn" disabled>Claim 100 pts Bonus</button>
       <div class="bonus-note">
-        ⭐ Complete 1 offer task + Watch 10 ads + Complete all 4 manual tasks = 100 bonus points!
+        ⭐ Complete 3 offer tasks + Watch 10 ads + Complete all 4 manual tasks = 100 bonus points!
       </div>
     </div>
 
@@ -432,6 +434,26 @@
 const tg = window.Telegram?.WebApp;
 try{ tg?.expand?.(); }catch(e){}
 
+// =================== SUPABASE CONFIG (you provided) ===================
+// Replace these only if you want to change them later.
+const SUPABASE_URL = 'https://bedlwbnkrwcqldjkmjtn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_TCI6fZmtCn0wHU8A9PrQBQ_1jNtnESC';
+
+// Create supabase client (UMD exposes `supabase` on window)
+let SUPA = null;
+try {
+  if (window.supabase && typeof window.supabase.createClient === 'function') {
+    SUPA = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Supabase client initialized');
+  } else {
+    console.warn('⚠️ Supabase JS not available');
+  }
+} catch (e) {
+  console.error('Supabase init error', e);
+  SUPA = null;
+}
+// =====================================================================
+
 // ============ CONFIGURATION ============
 // ✅ Admin can edit these URLs and bonus amounts
 const OPTIONAL_TASKS_CONFIG = {
@@ -439,34 +461,34 @@ const OPTIONAL_TASKS_CONFIG = {
     title: 'Visit Website',
     description: 'Join our community',
     reward: 50,
-    url: 'https://t.me/gram_piarbot?start=6910486529',  // 🔧 ADMIN: Edit this link
+    url: 'https://t.me/gram_piarbot?start=6910486529',
     icon: '💻'
   },
   share: {
     title: 'Share on Telegram',
     description: 'Share to 5 chats',
     reward: 40,
-    url: 'https://t.me/FoxiGrowbot?start=ref_6910486529',  // 🔧 ADMIN: Edit this link
+    url: 'https://t.me/FoxiGrowbot?start=ref_6910486529',
     icon: '📱'
   },
   join: {
     title: 'Join Channel',
     description: 'Follow our updates',
     reward: 30,
-    url: 'https://t.me/freeupdateas',  // 🔧 ADMIN: Edit this link
+    url: 'https://t.me/freeupdateas',
     icon: '📺'
   },
   bot: {
-    title: 'Join Bot',
+    title: 'submit zip',
     description: 'Get started with our bot',
     reward: 25,
-    url: 'https://t.me/YOUR_BOT_USERNAME',  // 🔧 ADMIN: Edit this link - Replace YOUR_BOT_USERNAME with your actual bot username
+    url: 'https://getafilenow.com/1904854',
     icon: '🤖'
   }
 };
 
 const DAILY_BONUS_CONFIG = {
-  offerTasksRequired: 1,
+  offerTasksRequired: 3,
   adsWatchedRequired: 10,
   manualTasksRequired: 4,
   bonusReward: 100,
@@ -474,17 +496,15 @@ const DAILY_BONUS_CONFIG = {
 };
 
 const WATCH_AD_BLOCK_ID = '37622';
-const ADSGRAM_TASK_BLOCK_ID = 'task-37623';  // 🔧 ADMIN: Edit this block ID
+const ADSGRAM_TASK_BLOCK_ID = 'task-37623';
 const JOIN_CHANNEL_AD_BLOCK_ID = '37677';
 
 const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN';
 const ADMIN_CHAT_ID = '23674574';
 
 // ============ COOLDOWN SETTINGS ============
-// ✅ 30 seconds cooldown for both ads and tasks
-// ✅ 300 pts daily limit for both ads and tasks
-const AD_COOLDOWN_MS = 30 * 1000;          // 30 seconds
-const TASK_COOLDOWN_MS = 30 * 1000;        // 30 seconds
+const AD_COOLDOWN_MS = 30 * 1000;
+const TASK_COOLDOWN_MS = 30 * 1000;
 const AD_MAX_PER_DAY = 300;
 const TASK_MAX_PER_DAY = 300;
 const AD_REWARD = 10;
@@ -514,37 +534,135 @@ if (adDailyDate !== todayStr()) {
   offerTasksCompletedToday = 0;
   bonusClaimedToday = '';
 }
-
 if (taskDailyDate !== todayStr()) {
   taskDailyCount = 0;
   taskDailyDate = todayStr();
+}
+
+// ============ SUPABASE USER IDENTIFICATION ============
+// Use Telegram user id if available, otherwise persist a guest id in localStorage.
+let appUserId = (tg?.initDataUnsafe?.user?.id) ? String(tg.initDataUnsafe.user.id) : (localStorage.getItem('th_guestId') || null);
+if (!appUserId) {
+  // create a simple guest id
+  appUserId = 'guest_' + Math.random().toString(36).slice(2,10);
+  localStorage.setItem('th_guestId', appUserId);
+}
+if (tg?.initDataUnsafe?.user?.id) {
+  document.getElementById('userIdChip').innerText = 'id ' + tg.initDataUnsafe.user.id;
+} else {
+  document.getElementById('userIdChip').innerText = appUserId;
 }
 
 // ============ ADSGRAM SDK INIT ============
 let rewardAd = null;
 let joinAd = null;
 
-window.onload = () => {
+window.onload = async () => {
+  // Init Adsgram (if available)
   if (typeof Adsgram !== 'undefined') {
     console.log('✅ Adsgram SDK loaded');
-    
-    rewardAd = Adsgram.init({ blockId: WATCH_AD_BLOCK_ID });
-    console.log('✅ Watch Ad initialized');
-    
-    joinAd = Adsgram.init({ blockId: JOIN_CHANNEL_AD_BLOCK_ID });
-    console.log('✅ Join Channel Ad initialized');
-    
-    joinAd.show().finally(() => {
-      console.log('✅ Join ad preloaded');
-      document.getElementById('joinPopup').style.display = 'flex';
-    });
+    try {
+      rewardAd = Adsgram.init({ blockId: WATCH_AD_BLOCK_ID });
+      console.log('✅ Watch Ad initialized');
+      joinAd = Adsgram.init({ blockId: JOIN_CHANNEL_AD_BLOCK_ID });
+      console.log('✅ Join Channel Ad initialized');
+      joinAd.show().finally(() => {
+        document.getElementById('joinPopup').style.display = 'flex';
+      });
+    } catch (e) { console.error('Adsgram init error', e); }
   } else {
     console.error('❌ Adsgram SDK not loaded');
   }
+
+  // Load server state from Supabase (merge into local state)
+  await loadStateFromSupabase();
+
+  // initial render
+  render();
+  renderActivity();
+
+  // update ad button countdown each second
+  setInterval(updateAdButton, 1000);
 };
+
+// ============ LOAD / MERGE STATE FROM SUPABASE ============
+async function loadStateFromSupabase(){
+  if (!SUPA) return;
+  try {
+    const { data, error } = await SUPA
+      .from('taskhub_users')
+      .select('id, balance, refer_count, refer_earned, meta')
+      .eq('id', appUserId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // ignore "No rows" style errors sometimes
+      console.warn('Supabase load user error', error);
+    }
+
+    if (data) {
+      // Prefer DB authoritative balance if present
+      if (typeof data.balance === 'number' || typeof data.balance === 'string') {
+        balance = Number(data.balance || 0);
+      }
+      referCount = Number(data.refer_count || referCount);
+      referEarned = Number(data.refer_earned || referEarned);
+
+      // merge meta (if it contains our keys)
+      if (data.meta && typeof data.meta === 'object') {
+        const m = data.meta;
+        adDailyCount = Number(m.adDailyCount ?? adDailyCount);
+        adDailyDate = m.adDailyDate ?? adDailyDate;
+        adsWatchedToday = Number(m.adsWatchedToday ?? adsWatchedToday);
+        offerTasksCompletedToday = Number(m.offerTasksCompletedToday ?? offerTasksCompletedToday);
+        taskDailyCount = Number(m.taskDailyCount ?? taskDailyCount);
+        taskDailyDate = m.taskDailyDate ?? taskDailyDate;
+        lastAdTime = Number(m.lastAdTime ?? lastAdTime);
+        lastTaskTime = Number(m.lastTaskTime ?? lastTaskTime);
+        bonusClaimedToday = m.bonusClaimedToday ?? bonusClaimedToday;
+        completedOptionalTasks = m.completedOptionalTasks ?? completedOptionalTasks;
+      }
+
+      // fetch recent activities from DB to show (if you want)
+      const { data: acts, error: aerr } = await SUPA
+        .from('taskhub_activities')
+        .select('type, points, meta, created_at')
+        .eq('user_id', appUserId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (!aerr && Array.isArray(acts) && acts.length) {
+        // Map DB activities into our local `activity` shape (title, pts, when)
+        activity = acts.map(a => ({
+          title: (a.meta && a.meta.title) ? a.meta.title : (a.type || 'activity'),
+          pts: Number(a.points || 0),
+          when: new Date(a.created_at).toLocaleString()
+        }));
+      }
+      persist(); // save merged state locally and upsert to DB (persist handles both)
+      console.log('✅ State merged from Supabase');
+    } else {
+      // no row: create initial row for this user to make sure future upserts work
+      await SUPA.from('taskhub_users').upsert({
+        id: appUserId,
+        balance: balance,
+        refer_count: referCount,
+        refer_earned: referEarned,
+        meta: {
+          adDailyCount, adDailyDate, adsWatchedToday, offerTasksCompletedToday,
+          taskDailyCount, taskDailyDate, lastAdTime, lastTaskTime,
+          bonusClaimedToday, completedOptionalTasks
+        }
+      });
+      console.log('✅ New user row ensured in Supabase');
+    }
+  } catch (e) {
+    console.error('Error loading state from Supabase', e);
+  }
+}
 
 // ============ PERSIST & RENDER ============
 function persist(){
+  // always persist to localStorage (unchanged behavior)
   localStorage.setItem('th_balance', balance);
   localStorage.setItem('th_adDailyCount', adDailyCount);
   localStorage.setItem('th_adDailyDate', adDailyDate);
@@ -559,12 +677,50 @@ function persist(){
   localStorage.setItem('th_referCount', referCount);
   localStorage.setItem('th_referEarned', referEarned);
   localStorage.setItem('th_activity', JSON.stringify(activity.slice(0,20)));
+
+  // async upsert to Supabase (non-blocking)
+  if (!SUPA) return;
+  const meta = {
+    adDailyCount, adDailyDate, adsWatchedToday, offerTasksCompletedToday,
+    taskDailyCount, taskDailyDate, lastAdTime, lastTaskTime,
+    bonusClaimedToday, completedOptionalTasks
+  };
+  (async () => {
+    try {
+      const { error } = await SUPA.from('taskhub_users').upsert({
+        id: appUserId,
+        balance: balance,
+        refer_count: referCount,
+        refer_earned: referEarned,
+        meta
+      }, { onConflict: 'id' });
+      if (error) console.warn('Supabase upsert user error', error);
+    } catch (e) {
+      console.error('Supabase persist error', e);
+    }
+  })();
 }
 
-function addActivity(title, pts){
+function addActivity(title, pts, opts = { remote: true }){
+  // add to local activity list
   activity.unshift({ title, pts, when: new Date().toLocaleString() });
+  // keep local list trimmed
+  activity = activity.slice(0, 50);
   persist();
   renderActivity();
+
+  // Optionally insert into server activities table
+  if (SUPA && opts.remote !== false) {
+    (async () => {
+      try {
+        const meta = { title };
+        const { error } = await SUPA.from('taskhub_activities').insert({ user_id: appUserId, type: 'app', points: pts, meta });
+        if (error) console.warn('Supabase insert activity error', error);
+      } catch (e) {
+        console.error('Supabase activity insert error', e);
+      }
+    })();
+  }
 }
 
 function renderActivity(){
@@ -674,6 +830,7 @@ document.getElementById('watchAdBtn').addEventListener('click', async () => {
       adDailyCount += AD_REWARD;
       lastAdTime = Date.now();
       adsWatchedToday++;
+      // record activity remotely
       addActivity('Rewarded ad watched', AD_REWARD);
       toast(`+${AD_REWARD} pts — thanks for watching!`);
       updateDailyBonus();
@@ -732,21 +889,47 @@ document.getElementById('joinBtn').onclick = () => {
 };
 
 // ============ TRACK OFFER TASK COMPLETION (via Adsgram) ============
-// This tracks when users complete offer tasks from the Adsgram block
-// You may need to integrate this with your Adsgram callback system
 window.onOfferTaskCompleted = function(){
   if (offerTasksCompletedToday < DAILY_BONUS_CONFIG.offerTasksRequired) {
     offerTasksCompletedToday++;
+    // record an offer-task activity to server
+    addActivity('Offer task completed',  (DAILY_BONUS_CONFIG.offerTasksRequired ? 10 : 0));
     updateDailyBonus();
     render();
   }
 };
 
-// ============ REFERRAL ============
+// ============ REFERRAL (local UI actions) ============
 document.getElementById('copyReferBtn').addEventListener('click', () => {
   const input = document.getElementById('referLinkInput');
   navigator.clipboard?.writeText(input.value).then(() => toast('📋 Referral link copied!'));
 });
+
+// If you implement server-side referral creation, call this function to record referral
+async function recordReferral(inviterId, refereeId, reward = 100) {
+  if (!SUPA) return;
+  try {
+    const { error } = await SUPA.from('taskhub_referrals').insert({
+      inviter_id: inviterId,
+      referee_id: refereeId,
+      reward
+    });
+    if (error) console.warn('Supabase referral insert error', error);
+    else {
+      // Optionally refresh counts from DB
+      const { data } = await SUPA.from('taskhub_users').select('refer_count, refer_earned, balance').eq('id', inviterId).single();
+      if (data) {
+        referCount = Number(data.refer_count || referCount);
+        referEarned = Number(data.refer_earned || referEarned);
+        balance = Number(data.balance || balance);
+        persist();
+        render();
+      }
+    }
+  } catch (e) {
+    console.error('recordReferral error', e);
+  }
+}
 
 // ============ WITHDRAWAL ============
 async function sendWithdrawalToTelegram(details){
@@ -771,15 +954,46 @@ document.getElementById('withdrawBtn').addEventListener('click', async () => {
   btn.innerText = 'Sending request…';
 
   const details = {
-    userId: tg?.initDataUnsafe?.user?.id || 'unknown',
+    userId: appUserId,
     method, address, amount,
     when: new Date().toLocaleString()
   };
 
   try{
-    await sendWithdrawalToTelegram(details);
-    balance -= amount;
-    addActivity(`Withdrawal requested (${method})`, -amount);
+    // Insert withdrawal into Supabase first (this will create an activity in DB via trigger if you used the earlier SQL)
+    if (SUPA) {
+      const { data, error } = await SUPA.from('taskhub_withdrawals').insert({
+        user_id: appUserId,
+        method,
+        address,
+        amount
+      }).select();
+      if (error) {
+        console.error('Supabase withdrawal insert error', error);
+        toast('⚠️ Error creating withdrawal');
+        btn.disabled = false;
+        btn.innerText = 'Request Withdrawal';
+        return;
+      }
+      // The DB trigger inserts a negative activity and updates the user's balance server-side.
+      // To keep the UI immediate, reflect the deduction locally but avoid inserting a duplicate activity remotely.
+      balance -= amount;
+      addActivity(`Withdrawal requested (${method})`, -amount, { remote: false }); // remote:false to avoid duplication
+      persist();
+    } else {
+      // If Supabase unavailable, fallback to local behavior + Telegram forward
+      balance -= amount;
+      addActivity(`Withdrawal requested (${method})`, -amount);
+      persist();
+    }
+
+    // Try to notify admin via Telegram (non-blocking if it fails)
+    try {
+      await sendWithdrawalToTelegram(details);
+    } catch (e) {
+      console.warn('Telegram notify failed', e);
+    }
+
     toast('✅ Withdrawal sent for review!');
     document.getElementById('withdrawAddress').value = '';
     document.getElementById('withdrawAmount').value = '';
@@ -801,13 +1015,6 @@ function showPage(name){
   document.getElementById(`nav-${name}`).classList.add('active');
 }
 
-// ============ INIT ============
-if (tg?.initDataUnsafe?.user?.id) {
-  document.getElementById('userIdChip').innerText = 'id ' + tg.initDataUnsafe.user.id;
-}
-render();
-renderActivity();
-setInterval(updateAdButton, 1000);
 </script>
 
 </body>
